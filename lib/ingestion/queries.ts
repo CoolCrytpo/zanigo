@@ -197,7 +197,7 @@ export async function approveStagingItem(id: string, userId: string): Promise<st
   // Store source evidence
   if (s.source_url) {
     await pool.query(
-      `INSERT INTO source_evidence (listing_id, source_type, source_url, excerpt, captured_at)
+      `INSERT INTO source_evidences (listing_id, source_type, source_url, excerpt, captured_at)
        VALUES ($1,'other',$2,$3,now())`,
       [listingId, s.source_url, s.proof_excerpt]
     )

@@ -81,6 +81,12 @@ const LISTING_SELECT = `
   )::int AS source_count
 `
 
+function toIso(v: unknown): string | null {
+  if (!v) return null
+  if (v instanceof Date) return v.toISOString()
+  return String(v)
+}
+
 function buildListingRow(row: Record<string, unknown>): Listing {
   return {
     ...row,
@@ -90,6 +96,9 @@ function buildListingRow(row: Record<string, unknown>): Listing {
     amenities: [],
     trail_details: (row.trail_details as Listing['trail_details']) ?? null,
     social_urls: (row.social_urls as Listing['social_urls']) ?? null,
+    verified_at: toIso(row.verified_at),
+    created_at: toIso(row.created_at) ?? '',
+    updated_at: toIso(row.updated_at) ?? '',
   } as unknown as Listing
 }
 

@@ -192,35 +192,67 @@ interface ListDetection {
   childLinks: string[]
 }
 
-function detectListPage(html: string, baseUrl: string, baseDomain: string): ListDetection {
-  const internalLinks = extractInternalLinks(html, baseUrl, baseDomain)
-  const basePath = (() => { try { return new URL(baseUrl).pathname } catch { return '/' } })()
+const NAV_SKIP = [
+  'contact', 'about', 'nous', 'accueil', 'home', 'search', 'login', 'admin',
+  'tag', 'categor', 'mention', 'cgv', 'privacy', 'legal', 'sitemap',
+  'panier', 'cart', 'checkout', 'account', 'inscription', 'connexion',
+]
 
-  // Find links that are "children" of the current path
-  const childLinks = internalLinks.filter(link => {
+function isNavLink(pathname: string): boolean {
+  if (['/', ''].includes(pathname)) return true
+  const ext = pathname.split('.').pop()?.toLowerCase()
+  if (ext && ['jpg', 'png', 'pdf', 'css', 'js', 'svg', 'gif', 'webp', 'ico'].includes(ext)) return true
+  const lower = pathname.toLowerCase()
+  return NAV_SKIP.some(kw => lower.includes('/' + kw))
+}
+
+function detectListPage(html: string, baseUrl: string, baseDomain: string): ListDetection {
+  const seen = new Set<string>()
+
+  // ── Strategy 1: links inside repeated card/article containers ─────────
+  // Extract blocks matching typical listing patterns, grab first link from each
+  const BLOCK_RE = /(?:<article[^>]*>[\s\S]*?<\/article>|<div[^>]+class="[^"]*(?:card|item|listing|fiche|gite|hebergement|camping|lodge|result|views-row|node|post|tile|vignette|annonce)[^"]*"[^>]*>[\s\S]*?<\/div>|<li[^>]+class="[^"]*(?:item|result|gite|listing|entry)[^"]*"[^>]*>[\s\S]*?<\/li>)/gi
+  const containerLinks: string[] = []
+  let m
+  while ((m = BLOCK_RE.exec(html)) !== null) {
+    const hrefMatch = m[0].match(/href=["']([^"'#?]+)["']/)
+    if (!hrefMatch) continue
     try {
-      const linkPath = new URL(link).pathname
-      // Must be deeper in the hierarchy
-      if (!linkPath.startsWith(basePath) || linkPath === basePath) return false
-      // Avoid static assets and navigation
-      const ext = linkPath.split('.').pop()?.toLowerCase()
-      if (['jpg', 'png', 'pdf', 'css', 'js', 'svg', 'gif', 'webp'].includes(ext ?? '')) return false
-      const avoidSegments = ['contact', 'about', 'nous', 'accueil', 'search', 'login', 'admin', 'tag', 'categorie']
-      if (avoidSegments.some(s => linkPath.toLowerCase().includes(s))) return false
-      return true
-    } catch { return false }
+      const abs = new URL(hrefMatch[1], baseUrl).href
+      const parsed = new URL(abs)
+      if (parsed.hostname.replace(/^www\./, '') !== baseDomain) continue
+      if (isNavLink(parsed.pathname)) continue
+      if (!seen.has(abs)) { seen.add(abs); containerLinks.push(abs) }
+    } catch { /* skip */ }
+  }
+  if (containerLinks.length >= 2) {
+    return { isList: true, childLinks: containerLinks.slice(0, MAX_CHILD_PAGES) }
+  }
+
+  // ── Strategy 2: group ALL internal links by URL depth ─────────────────
+  // On a list page, all item links tend to share the same depth
+  const allInternal = extractInternalLinks(html, baseUrl, baseDomain)
+  const contentLinks = allInternal.filter(link => {
+    try { return !isNavLink(new URL(link).pathname) }
+    catch { return false }
   })
 
-  // Also look for repeated card/article patterns
-  const repeatPatterns = [
-    /<article[^>]*>/gi, /<div[^>]+class="[^"]*(?:card|item|listing|fiche|gite|etablissement|hebergement|lodge|result)[^"]*"/gi,
-    /<li[^>]+class="[^"]*(?:item|result|listing)[^"]*"/gi,
-  ]
-  const patternCount = repeatPatterns.reduce((acc, re) => acc + (html.match(re) ?? []).length, 0)
+  const depthGroups: Record<number, string[]> = {}
+  for (const link of contentLinks) {
+    try {
+      const depth = new URL(link).pathname.split('/').filter(Boolean).length
+      if (!depthGroups[depth]) depthGroups[depth] = []
+      if (!depthGroups[depth].includes(link)) depthGroups[depth].push(link)
+    } catch { /* skip */ }
+  }
 
-  const isList = childLinks.length >= 2 || patternCount >= 3
+  // Pick the depth group with the most distinct links (min 3)
+  const sorted = Object.entries(depthGroups).sort((a, b) => b[1].length - a[1].length)
+  if (sorted.length > 0 && sorted[0][1].length >= 3) {
+    return { isList: true, childLinks: sorted[0][1].slice(0, MAX_CHILD_PAGES) }
+  }
 
-  return { isList, childLinks: childLinks.slice(0, MAX_CHILD_PAGES) }
+  return { isList: false, childLinks: [] }
 }
 
 // ── Compatibility ─────────────────────────────
@@ -325,11 +357,11 @@ export async function analyzeUrl(url: string): Promise<AnalysisResult> {
   const text = stripHtml(html)
   const rawExcerpt = text.slice(0, 400)
 
-  // Detect if editorial (no listing data)
-  const lower = text.toLowerCase()
-  const isEditorial = (
-    lower.includes('réglementation') || lower.includes('règlement général') || lower.includes('politique de confidentialité')
-  ) && text.length > 5000
+  // Detect if editorial — only based on h1/title, not body (footer pollutes)
+  const titleText = (extractTitle(html) + ' ' + (extractMeta(html, 'og:type') ?? '')).toLowerCase()
+  const isEditorial =
+    titleText.includes('politique') || titleText.includes('cgv') ||
+    titleText.includes('mentions légales') || titleText.includes('rgpd')
 
   if (isEditorial) {
     return {

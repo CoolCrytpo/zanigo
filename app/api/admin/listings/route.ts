@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     if (data.is_published) {
       try {
         const listing = await getAdminListingById(id)
-        if (listing) await syncListingToSearch(listing)
+        if (listing) await syncListingToSearch(listing.id)
       } catch { /* optional */ }
     }
 

@@ -19,7 +19,7 @@ export async function POST() {
 
     // Fetch all published listings (up to 10k)
     const result = await getPublishedListings({ page: 1, per_page: 10000 })
-    await syncAllListings(result.items)
+    await syncAllListings()
 
     return NextResponse.json({ synced: result.total })
   } catch (e) {

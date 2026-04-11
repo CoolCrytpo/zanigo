@@ -45,7 +45,7 @@ export async function PUT(
     try {
       if (data.is_published) {
         const updated = await getAdminListingById(id)
-        if (updated) await syncListingToSearch(updated)
+        if (updated) await syncListingToSearch(updated.id)
       } else {
         await removeListingFromSearch(id)
       }

@@ -1,4 +1,4 @@
-import { requireSession } from '@/lib/auth/session'
+import { getSession } from '@/lib/auth/session'
 import Link from 'next/link'
 import { APP_NAME } from '@/config/constants'
 
@@ -11,7 +11,12 @@ const ADMIN_NAV = [
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const user = await requireSession()
+  const user = await getSession()
+
+  // Not logged in — render children only (login page handles its own layout)
+  if (!user) {
+    return <>{children}</>
+  }
 
   return (
     <div className="flex min-h-dvh" style={{ background: '#f8fafc' }}>

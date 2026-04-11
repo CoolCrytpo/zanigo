@@ -318,29 +318,78 @@ async function fetchPage(url: string): Promise<string | null> {
   }
 }
 
+// ── JSON-LD / Schema.org ──────────────────────
+
+function extractJsonLd(html: string): Record<string, unknown> | null {
+  const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
+  let m
+  while ((m = re.exec(html)) !== null) {
+    try {
+      const raw = m[1].trim()
+      const data = JSON.parse(raw)
+      const obj = Array.isArray(data) ? data[0] : data
+      if (obj && obj['@type']) return obj as Record<string, unknown>
+    } catch { /* skip */ }
+  }
+  return null
+}
+
+function jsonLdToAddress(addr: unknown): string {
+  if (!addr || typeof addr !== 'object') return ''
+  const a = addr as Record<string, string>
+  return [a.streetAddress, a.postalCode, a.addressLocality].filter(Boolean).join(', ')
+}
+
+function mapJsonLdType(type: unknown): string | undefined {
+  if (typeof type !== 'string') return undefined
+  const map: Record<string, string> = {
+    Hotel: 'hotel', LodgingBusiness: 'hebergement', Motel: 'hotel',
+    Restaurant: 'restaurant', FoodEstablishment: 'restaurant', CafeOrCoffeeShop: 'restaurant',
+    TouristAttraction: 'attraction', LocalBusiness: 'commerce',
+    CampingGrounds: 'camping', BedAndBreakfast: 'chambre_hote',
+    Store: 'commerce', SportsActivityLocation: 'activite',
+    Beach: 'plage', Park: 'nature',
+  }
+  return map[type]
+}
+
 // ── Single item extractor ─────────────────────
 
 function extractItemFromPage(html: string, url: string, domain: string): ExtractedItem {
+  const jsonLd = extractJsonLd(html)
   const text = stripHtml(html)
-  const name = extractTitle(html) || 'Lieu sans nom'
-  const description = extractDescription(html)
-  const { policy, excerpt } = detectDogPolicy(text)
-  const commune = extractCommune(text)
-  const phone = extractPhone(text)
-  const email = extractEmail(html)
-  const website = extractWebsite(html, domain, url)
-  const address = extractAddress(text)
 
-  // Confidence = factual completeness (independent of dog policy)
-  // A fiche with name+phone+commune is useful even if policy is unknown
-  let confidence = 30 // base for a real page
+  const rawName = (jsonLd?.name as string) || extractTitle(html) || 'Lieu sans nom'
+  const name = rawName.replace(/\s*[|–—]\s*.+$/, '').trim() || 'Lieu sans nom'
+
+  let address = ''
+  if (jsonLd?.address) address = jsonLdToAddress(jsonLd.address)
+  if (!address) address = extractAddress(text)
+
+  const rawPhone = (jsonLd?.telephone as string) || ''
+  const phone = rawPhone ? rawPhone.replace(/[\s.\-]+/g, ' ').trim() : extractPhone(text)
+
+  const rawWebsite = (jsonLd?.url as string) || ''
+  const website = (rawWebsite && !rawWebsite.includes(domain)) ? rawWebsite : extractWebsite(html, domain, url)
+
+  const addrObj = jsonLd?.address as Record<string, string> | undefined
+  const commune =
+    extractCommune((addrObj?.addressLocality ?? '') + ' ' + (addrObj?.addressRegion ?? '')) ||
+    extractCommune(text)
+
+  const email = extractEmail(html)
+  const description = extractDescription(html)
+  const category = mapJsonLdType(jsonLd?.['@type'])
+  const { policy, excerpt } = detectDogPolicy(text)
+
+  let confidence = 30
   if (name && name !== 'Lieu sans nom') confidence += 10
   if (commune) confidence += 15
   if (phone) confidence += 15
   if (email) confidence += 10
   if (address) confidence += 10
   if (website) confidence += 5
-  // Dog policy bonus only if explicitly found
+  if (jsonLd) confidence += 10
   if (policy !== 'unknown' && excerpt) confidence += 15
   confidence = Math.min(confidence, 95)
 
@@ -351,6 +400,7 @@ function extractItemFromPage(html: string, url: string, domain: string): Extract
     phone: phone || undefined,
     email: email || undefined,
     website: website || undefined,
+    category: category || undefined,
     dog_policy: policy,
     dog_policy_detail: description || undefined,
     proof_excerpt: excerpt || undefined,

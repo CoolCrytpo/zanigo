@@ -70,8 +70,60 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ batch_id: batch.id, imported, rejected, parse_errors: errors })
   }
 
-  // ── URL import ──────────────────────────────
-  const { urls, label } = await req.json() as { urls: string[]; label?: string }
+  // ── URL or Manual import ──────────────────────────────
+  const body = await req.json() as {
+    urls?: string[]
+    items?: Array<{
+      name: string; category?: string; commune?: string
+      phone?: string; website?: string; dog_policy?: string
+    }>
+    label?: string
+    source_url?: string
+  }
+
+  // Manual items (quick entry form)
+  if (body.items && Array.isArray(body.items)) {
+    const { items, label, source_url } = body
+    const sourceDomain = source_url
+      ? (() => { try { return new URL(source_url).hostname.replace(/^www\./, '') } catch { return 'manual' } })()
+      : 'manual'
+
+    const batch = await createBatch('manual', label ?? 'Saisie manuelle', user.id)
+    let imported = 0; let rejected = 0
+
+    for (const item of items) {
+      if (!item.name?.trim()) { rejected++; continue }
+      try {
+        const sourceId = await createSource(
+          batch.id, source_url ?? 'manual', sourceDomain,
+          'detail', 'medium', 'compatible', 1
+        )
+        await insertStagingItem({
+          name: item.name.trim(),
+          dog_policy: (item.dog_policy ?? 'unknown') as 'yes' | 'no' | 'conditional' | 'unknown',
+          confidence_score: 35,
+          source_url: source_url ?? 'manual',
+          source_domain: sourceDomain,
+          source_page_type: 'detail',
+          commune_name: item.commune || undefined,
+          phone: item.phone || undefined,
+          website: item.website || undefined,
+          category: item.category || undefined,
+        }, batch.id, sourceId, user.id)
+        imported++
+      } catch { rejected++ }
+    }
+
+    await updateBatchStatus(batch.id, imported > 0 ? 'imported_to_staging' : 'failed', {
+      total_sources: 1, total_extracted: items.length,
+      total_imported: imported, total_rejected: rejected, total_duplicates: 0,
+    })
+
+    return NextResponse.json({ batch_id: batch.id, imported, rejected })
+  }
+
+  // URL import
+  const { urls, label } = body
   if (!Array.isArray(urls) || urls.length === 0) {
     return NextResponse.json({ error: 'urls requis' }, { status: 400 })
   }

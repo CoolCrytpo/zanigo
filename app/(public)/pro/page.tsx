@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Espace pro — ZaniGo',
+  title: 'Espace pro — Zanimo Guide',
   description: 'Référencez votre établissement, valorisez votre service et touchez les propriétaires d\'animaux à La Réunion.',
 }
 
@@ -46,7 +46,7 @@ export default function ProPage() {
             Touchez les propriétaires d&apos;animaux à La Réunion
           </h1>
           <p className="text-body-lg mb-8" style={{ color: 'rgba(255,255,255,0.65)' }}>
-            ZaniGo est le guide de référence pour sortir avec son animal sur l&apos;île.
+            Zanimo Guide est le guide de référence pour sortir avec son animal sur l&apos;île.
             Référencez votre établissement, valorisez votre service, soyez visible au bon moment.
           </p>
           <Link
@@ -94,7 +94,7 @@ export default function ProPage() {
             Contactez-nous pour discuter de votre projet de visibilité.
           </p>
           <Link
-            href="mailto:pro@zanigo.re"
+            href="mailto:pro@zanimo.guide"
             className="inline-block px-6 py-3 rounded-xl font-semibold text-white"
             style={{ background: 'var(--color-vert)' }}
           >

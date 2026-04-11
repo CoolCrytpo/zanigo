@@ -1,145 +1,158 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────
-   ZANIGO — Design Tokens
+   Zanimo Guide — Design System Tokens
    ───────────────────────────────────────────── */
 
 @theme {
-  /* Colors — Brand */
-  --color-basalte:   #1F2320;
-  --color-sable:     #F5F1E8;
-  --color-vert:      #2F6B57;
-  --color-lagon:     #2C6E8F;
-  --color-corail:    #E16A4A;
-  --color-jaune:     #E5B94B;
+  /* === BRAND === */
+  --color-blue:        #2A74E6;
+  --color-blue-dark:   #1A5CC8;
+  --color-blue-light:  #EEF4FF;
+  --color-green:       #1FA97E;
+  --color-green-dark:  #167A5C;
+  --color-green-light: #EDFBF5;
 
-  /* Colors — Neutrals */
-  --color-text:      #111111;
-  --color-muted:     #5F655F;
-  --color-border:    #D9D3C8;
-  --color-surface:   #FFFFFF;
-  --color-vert-light: #EEF3F0;
+  /* === ACCENTS === */
+  --color-coral:       #FF6B57;
+  --color-coral-light: #FFF3F1;
+  --color-yellow:      #F4B73F;
+  --color-yellow-light:#FFF8E6;
+  --color-cyan:        #37C8C0;
+  --color-cyan-light:  #EDFBFA;
+  --color-purple:      #8B5CF6;
+  --color-purple-light:#F3EEFF;
 
-  /* Colors — Status (dog policy) */
-  --color-allowed:    #16a34a;
-  --color-conditional: #d97706;
-  --color-disallowed: #dc2626;
-  --color-unknown:    #6b7280;
+  /* === NEUTRALS === */
+  --color-canvas:      #F7F5EF;  /* warm ivory — page bg */
+  --color-surface:     #FFFFFF;
+  --color-surface-raised: #FDFDFC;
+  --color-border:      #E8E4DA;
+  --color-border-strong: #C8C2B4;
 
-  /* Spacing scale */
-  --spacing-1: 4px;
-  --spacing-2: 8px;
-  --spacing-3: 12px;
-  --spacing-4: 16px;
-  --spacing-5: 20px;
-  --spacing-6: 24px;
-  --spacing-8: 32px;
+  /* === TEXT === */
+  --color-text:        #1A2030;  /* near-black, warm */
+  --color-text-secondary: #4A5568;
+  --color-muted:       #718096;
+  --color-subtle:      #A0AEC0;
+
+  /* === LEGACY compat (used in existing admin components) === */
+  --color-basalte:     #1A2030;
+  --color-sable:       #F7F5EF;
+  --color-vert:        #1FA97E;
+  --color-vert-light:  #EDFBF5;
+  --color-lagon:       #2A74E6;
+  --color-corail:      #FF6B57;
+  --color-jaune:       #F4B73F;
+
+  /* === STATUS (dog policy) === */
+  --color-allowed:     #1FA97E;
+  --color-conditional: #F4B73F;
+  --color-disallowed:  #EF4444;
+  --color-unknown:     #94A3B8;
+
+  /* === SEMANTIC === */
+  --color-success:     #1FA97E;
+  --color-warning:     #F4B73F;
+  --color-error:       #EF4444;
+  --color-info:        #2A74E6;
+
+  /* === SPACING (4pt base) === */
+  --spacing-1:  4px;
+  --spacing-2:  8px;
+  --spacing-3:  12px;
+  --spacing-4:  16px;
+  --spacing-5:  20px;
+  --spacing-6:  24px;
+  --spacing-8:  32px;
   --spacing-10: 40px;
   --spacing-12: 48px;
   --spacing-16: 64px;
   --spacing-20: 80px;
 
-  /* Border Radius */
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
+  /* === RADIUS === */
+  --radius-xs:  6px;
+  --radius-sm:  10px;
+  --radius-md:  14px;
+  --radius-lg:  18px;
+  --radius-xl:  24px;
+  --radius-2xl: 32px;
+  --radius-pill: 999px;
 
-  /* Shadows */
-  --shadow-card: 0 1px 3px 0 rgba(31,35,32,0.06), 0 1px 2px -1px rgba(31,35,32,0.04);
-  --shadow-elevated: 0 4px 12px 0 rgba(31,35,32,0.10), 0 2px 4px -2px rgba(31,35,32,0.06);
-  --shadow-float: 0 8px 24px 0 rgba(31,35,32,0.12), 0 4px 8px -4px rgba(31,35,32,0.08);
+  /* === SHADOWS === */
+  --shadow-xs:   0 1px 2px 0 rgba(26,32,48,0.04);
+  --shadow-sm:   0 1px 3px 0 rgba(26,32,48,0.06), 0 1px 2px -1px rgba(26,32,48,0.04);
+  --shadow-card: 0 2px 8px 0 rgba(26,32,48,0.07), 0 1px 3px -1px rgba(26,32,48,0.05);
+  --shadow-elevated: 0 6px 16px 0 rgba(26,32,48,0.10), 0 2px 6px -2px rgba(26,32,48,0.06);
+  --shadow-float: 0 12px 32px 0 rgba(26,32,48,0.12), 0 4px 12px -4px rgba(26,32,48,0.08);
 
-  /* Typography — Font families */
+  /* === TYPOGRAPHY === */
   --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-ui: 'Inter', system-ui, sans-serif;
+  --font-ui:      'Inter', system-ui, sans-serif;
 
-  /* Motion */
+  /* === MOTION === */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out:    cubic-bezier(0, 0, 0.2, 1);
   --duration-fast: 120ms;
   --duration-base: 200ms;
   --duration-slow: 320ms;
 }
 
-/* ─────────────────────────────────────────────
-   Base styles
-   ───────────────────────────────────────────── */
-
+/* ─── Base ──────────────────────────────────── */
 html {
   font-family: var(--font-ui);
   color: var(--color-text);
-  background-color: var(--color-sable);
+  background-color: var(--color-canvas);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+body { min-height: 100dvh; }
 
-body {
-  min-height: 100dvh;
-}
-
-/* ─────────────────────────────────────────────
-   Typography scale
-   ───────────────────────────────────────────── */
-
+/* ─── Typography scale ───────────────────────── */
 .text-display {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(2rem, 5vw, 3.25rem);
   font-weight: 800;
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
-
 .text-h1 {
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 700;
   line-height: 1.2;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
-
 .text-h2 {
   font-family: var(--font-display);
-  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
   font-weight: 700;
   line-height: 1.25;
+  letter-spacing: -0.01em;
 }
-
 .text-h3 {
   font-family: var(--font-display);
-  font-size: 1.125rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   line-height: 1.35;
 }
-
-.text-body-lg {
-  font-size: 1.0625rem;
-  line-height: 1.6;
-}
-
-.text-body {
-  font-size: 0.9375rem;
-  line-height: 1.6;
-}
-
+.text-body-lg { font-size: 1.0625rem; line-height: 1.65; }
+.text-body    { font-size: 0.9375rem; line-height: 1.6; }
 .text-caption {
   font-size: 0.8125rem;
   line-height: 1.5;
   color: var(--color-muted);
 }
-
 .text-overline {
   font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-muted);
 }
 
-/* ─────────────────────────────────────────────
-   Utility classes
-   ───────────────────────────────────────────── */
-
+/* ─── Component classes ──────────────────────── */
 .card {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
@@ -147,20 +160,19 @@ body {
   border: 1px solid var(--color-border);
   overflow: hidden;
 }
-
 .card-hover {
-  transition: box-shadow var(--duration-base) var(--ease-smooth),
-              transform var(--duration-base) var(--ease-smooth);
+  transition:
+    box-shadow var(--duration-base) var(--ease-smooth),
+    transform var(--duration-base) var(--ease-smooth),
+    border-color var(--duration-base) var(--ease-smooth);
 }
-
 .card-hover:hover {
   box-shadow: var(--shadow-elevated);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  border-color: var(--color-border-strong);
 }
 
-.section {
-  padding-block: clamp(2rem, 6vw, 4rem);
-}
+.section { padding-block: clamp(2.5rem, 6vw, 4.5rem); }
 
 .container {
   width: 100%;
@@ -169,14 +181,40 @@ body {
   padding-inline: clamp(1rem, 4vw, 2rem);
 }
 
-/* ─────────────────────────────────────────────
-   MapLibre overrides
-   ───────────────────────────────────────────── */
-
-.maplibregl-map {
-  font-family: var(--font-ui);
+/* Btn primary */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  background: var(--color-blue);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
 }
+.btn-primary:hover { background: var(--color-blue-dark); transform: translateY(-1px); }
+.btn-primary:active { transform: scale(0.97); }
 
-.maplibregl-ctrl-attrib {
-  font-size: 0.6875rem !important;
+.btn-coral {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  background: var(--color-coral);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
 }
+.btn-coral:hover { filter: brightness(0.92); transform: translateY(-1px); }
+
+/* MapLibre */
+.maplibregl-map { font-family: var(--font-ui); }
+.maplibregl-ctrl-attrib { font-size: 0.6875rem !important; }

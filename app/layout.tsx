@@ -24,6 +24,10 @@ export const metadata: Metadata = {
     template: `%s | ${APP_NAME}`,
   },
   description: APP_DESCRIPTION,
+  applicationName: APP_NAME,
+  manifest: '/manifest.json',
+  appleWebApp: { capable: true, statusBarStyle: 'default', title: APP_NAME },
+  formatDetection: { telephone: false },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
@@ -37,15 +41,16 @@ export const metadata: Metadata = {
     title: `${APP_NAME} — ${APP_TAGLINE}`,
     description: APP_DESCRIPTION,
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: { index: true, follow: true },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${plusJakarta.variable} ${inter.variable}`}>
+      <head>
+        <meta name="theme-color" content="#2A74E6" />
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body>{children}</body>
     </html>
   )

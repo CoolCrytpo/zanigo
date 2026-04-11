@@ -1,0 +1,17 @@
+{
+  "name": "Zanimo Guide",
+  "short_name": "Zanimo",
+  "description": "L'annuaire péi pour son animal — dog-friendly à La Réunion",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F5EF",
+  "theme_color": "#2A74E6",
+  "lang": "fr",
+  "icons": [
+    { "src": "/brand/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["lifestyle", "travel", "local"],
+  "screenshots": []
+}

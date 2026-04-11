@@ -2,8 +2,8 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Signaler une erreur ou demander le retrait d\'une fiche — ZaniGo',
-  description: 'Signalez une information incorrecte ou demandez le retrait d\'une fiche de l\'annuaire ZaniGo.',
+  title: 'Signaler une erreur ou demander le retrait d\'une fiche — Zanimo Guide',
+  description: 'Signalez une information incorrecte ou demandez le retrait d\'une fiche de l\'annuaire Zanimo Guide.',
 }
 
 export default function SignalerPage() {
@@ -14,7 +14,7 @@ export default function SignalerPage() {
           Signaler une erreur ou demander le retrait d'une fiche
         </h1>
         <p className="text-gray-500 mb-8">
-          ZaniGo s'engage à maintenir des informations exactes et respectueuses des droits de chacun.
+          Zanimo Guide s'engage à maintenir des informations exactes et respectueuses des droits de chacun.
           Si vous constatez une erreur ou souhaitez qu'une fiche soit retirée, utilisez les formulaires ci-dessous.
         </p>
 
@@ -68,10 +68,10 @@ export default function SignalerPage() {
           <p className="text-sm text-gray-500 mb-2">
             Pour toute question ou situation urgente (données personnelles sensibles, atteinte à la vie privée) :
           </p>
-          <a href="mailto:contact@zanigo.re"
+          <a href="mailto:contact@zanimo.guide"
             className="text-sm font-semibold"
             style={{ color: 'var(--color-vert)' }}>
-            contact@zanigo.re
+            contact@zanimo.guide
           </a>
           <p className="text-xs text-gray-400 mt-3">
             En application du RGPD, toute demande relative à des données personnelles sera traitée dans un délai maximum de 30 jours.

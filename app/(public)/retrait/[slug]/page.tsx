@@ -167,7 +167,7 @@ export default function RetraitPage() {
         </form>
 
         <p className="text-xs text-gray-400 mt-4 text-center">
-          Contact direct : <a href="mailto:contact@zanigo.re" className="underline">contact@zanigo.re</a>
+          Contact direct : <a href="mailto:contact@zanimo.guide" className="underline">contact@zanimo.guide</a>
         </p>
       </div>
     </div>

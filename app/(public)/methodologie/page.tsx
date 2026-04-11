@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Notre méthode — ZaniGo',
-  description: 'Comment ZaniGo vérifie et publie ses fiches dog-friendly à La Réunion.',
+  title: 'Notre méthode — Zanimo Guide',
+  description: 'Comment Zanimo Guide vérifie et publie ses fiches dog-friendly à La Réunion.',
 }
 
 export default function MethodologiePage() {
@@ -17,7 +17,7 @@ export default function MethodologiePage() {
             {
               icon: '🔍',
               title: 'On vérifie avant de publier',
-              body: 'Aucune fiche n\'est publiée automatiquement. Chaque information est vérifiée par notre équipe avant d\'apparaître sur ZaniGo.',
+              body: 'Aucune fiche n\'est publiée automatiquement. Chaque information est vérifiée par notre équipe avant d\'apparaître sur Zanimo Guide.',
             },
             {
               icon: '📅',

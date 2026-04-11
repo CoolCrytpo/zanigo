@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Devenir partenaire — ZaniGo',
-  description: 'Sponsorisez ZaniGo et valorisez votre marque auprès des propriétaires d\'animaux à La Réunion.',
+  title: 'Devenir partenaire — Zanimo Guide',
+  description: 'Sponsorisez Zanimo Guide et valorisez votre marque auprès des propriétaires d\'animaux à La Réunion.',
 }
 
 export default function SponsorPage() {
@@ -13,10 +13,10 @@ export default function SponsorPage() {
           Partenariat
         </p>
         <h1 className="text-h1 mb-4" style={{ color: 'var(--color-basalte)' }}>
-          Devenir partenaire ZaniGo
+          Devenir partenaire Zanimo Guide
         </h1>
         <p className="text-body-lg mb-8" style={{ color: 'var(--color-muted)' }}>
-          Vous souhaitez sponsoriser ZaniGo ou lancer une campagne de visibilité ?
+          Vous souhaitez sponsoriser Zanimo Guide ou lancer une campagne de visibilité ?
           Remplissez le formulaire ci-dessous, on revient vers vous rapidement.
         </p>
 
@@ -25,7 +25,7 @@ export default function SponsorPage() {
             Formulaire de contact partenaire — bientôt disponible.
           </p>
           <a
-            href="mailto:pro@zanigo.re"
+            href="mailto:pro@zanimo.guide"
             className="inline-block mt-4 px-5 py-2.5 rounded-xl font-semibold text-white text-sm"
             style={{ background: 'var(--color-corail)' }}
           >

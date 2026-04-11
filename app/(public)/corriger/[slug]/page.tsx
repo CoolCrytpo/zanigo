@@ -160,7 +160,7 @@ export default function CorrigerPage() {
         </form>
 
         <p className="text-xs text-gray-400 mt-4 text-center">
-          Questions ? <a href="mailto:contact@zanigo.re" className="underline">contact@zanigo.re</a>
+          Questions ? <a href="mailto:contact@zanimo.guide" className="underline">contact@zanimo.guide</a>
         </p>
       </div>
     </div>

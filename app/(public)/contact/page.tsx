@@ -1,20 +1,20 @@
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'Contact — ZaniGo' }
+export const metadata: Metadata = { title: 'Contact — Zanimo Guide' }
 
 export default function ContactPage() {
   return (
-    <div className="section" style={{ background: 'var(--color-sable)' }}>
+    <div className="section" style={{ background: 'var(--color-canvas)' }}>
       <div className="container max-w-lg">
-        <h1 className="text-h1 mb-6" style={{ color: 'var(--color-basalte)' }}>Contact</h1>
+        <h1 className="text-h1 mb-6" style={{ color: 'var(--color-text)' }}>Contact</h1>
         <div className="card p-6 flex flex-col gap-4">
           <p className="text-body" style={{ color: 'var(--color-muted)' }}>
             Pour toute question, signalement ou partenariat, écrivez-nous à :
           </p>
-          <a href="mailto:bonjour@zanigo.re" className="text-body font-semibold" style={{ color: 'var(--color-vert)' }}>
-            bonjour@zanigo.re
+          <a href="mailto:contact@zanimo.guide" className="text-body font-semibold" style={{ color: 'var(--color-green)' }}>
+            contact@zanimo.guide
           </a>
-          <p className="text-caption">Partenariats & sponsoring : pro@zanigo.re</p>
+          <p className="text-caption">Partenariats & sponsoring : pro@zanimo.guide</p>
         </div>
       </div>
     </div>

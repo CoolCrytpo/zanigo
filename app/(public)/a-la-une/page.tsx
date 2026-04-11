@@ -4,7 +4,7 @@ import { ListingCard } from '@/components/listings/ListingCard'
 import { AdSlot } from '@/components/sponsor/AdSlot'
 
 export const metadata: Metadata = {
-  title: 'À la une — ZaniGo',
+  title: 'À la une — Zanimo Guide',
   description: 'Les meilleures adresses dog-friendly mises en avant à La Réunion.',
 }
 
@@ -27,7 +27,7 @@ export default async function ALaUnePage() {
           <p className="text-overline mb-2" style={{ color: 'var(--color-jaune)' }}>⭐ Sélection</p>
           <h1 className="text-h1" style={{ color: 'var(--color-basalte)' }}>À la une</h1>
           <p className="text-body mt-1" style={{ color: 'var(--color-muted)' }}>
-            Les adresses mises en avant par ZaniGo.
+            Les adresses mises en avant par Zanimo Guide.
           </p>
         </div>
 

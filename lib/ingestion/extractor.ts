@@ -62,10 +62,12 @@ function extractMeta(html: string, name: string): string {
 }
 
 function extractTitle(html: string): string {
+  // Strip site branding suffixes ("Name | Site Name" → "Name")
+  const stripSuffix = (s: string) => s.replace(/\s*[|–—]\s*.+$/, '').trim()
   const og = extractMeta(html, 'og:title')
-  if (og) return og
+  if (og) return stripSuffix(og)
   const tw = extractMeta(html, 'twitter:title')
-  if (tw) return tw
+  if (tw) return stripSuffix(tw)
   const h1 = html.match(/<h1[^>]*>([^<]+)<\/h1>/i)
   if (h1) return decodeEntities(h1[1].trim())
   const t = html.match(/<title[^>]*>([^<]+)<\/title>/i)
@@ -102,8 +104,12 @@ function extractInternalLinks(html: string, baseUrl: string, baseDomain: string)
 function extractExternalLinks(html: string, baseUrl: string, baseDomain: string): string[] {
   const seen = new Set<string>()
   const links: string[] = []
-  const BLACKLIST = ['google', 'fonts', 'cdn', 'jquery', 'bootstrap', 'cloudflare', '.js', '.css',
-    'facebook', 'instagram', 'twitter', 'youtube', 'linkedin', 'tripadvisor', 'booking', 'airbnb']
+  const BLACKLIST = [
+    'google', 'fonts', 'cdn', 'jquery', 'bootstrap', 'cloudflare', '.js', '.css',
+    'facebook', 'instagram', 'twitter', 'youtube', 'linkedin', 'tripadvisor', 'booking', 'airbnb',
+    'consentframework', 'cookiebot', 'onetrust', 'didomi', 'axeptio', 'tagmanager',
+    'analytics', 'doubleclick', 'hotjar', 'cache.', 'widget.', 'pixel.', 'track.',
+  ]
   const re = /href=["']([^"'#?]+)/gi
   let m
   while ((m = re.exec(html)) !== null) {
@@ -148,11 +154,19 @@ function extractPhone(text: string): string {
 }
 
 function extractEmail(html: string): string {
-  // Look in the raw HTML (before stripping) to catch mailto: links and obfuscated emails
+  const INVALID_TLDS = ['js', 'mjs', 'cjs', 'css', 'min', 'map', 'ts', 'tsx', 'jsx', 'vue', 'py', 'rb', 'php']
+  const isValidEmail = (e: string): boolean => {
+    const tld = e.split('.').pop()?.toLowerCase() ?? ''
+    if (INVALID_TLDS.includes(tld)) return false
+    // Reject version-like local parts (jquery@3.7.1, react@18.2.0)
+    if (/\d+\.\d+/.test(e.split('@')[0])) return false
+    return true
+  }
   const mailto = html.match(/mailto:([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i)
-  if (mailto) return mailto[1]
+  if (mailto && isValidEmail(mailto[1])) return mailto[1]
   const m = html.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)
-  return m ? m[0] : ''
+  if (m && isValidEmail(m[0])) return m[0]
+  return ''
 }
 
 function extractWebsite(html: string, baseDomain: string, sourceUrl: string): string {
@@ -270,9 +284,10 @@ function detectListPage(html: string, baseUrl: string, baseDomain: string): List
 // ── Compatibility ─────────────────────────────
 
 function detectCompatibility(domain: string): Compatibility {
-  const EXCELLENT = ['reunion.fr', 'irt.re', 'ouest-lareunion.com', 'sud.re', 'nordreunion.fr']
-  const GOOD = ['tripadvisor.fr', 'tripadvisor.com', 'gites-de-france.com', 'bringfido.com']
-  const LOW = ['facebook.com', 'instagram.com']
+  // reunion.fr and tripadvisor are JS-rendered — server-side fetch won't get real listings
+  const EXCELLENT = ['irt.re', 'ouest-lareunion.com', 'sud.re', 'nordreunion.fr']
+  const GOOD = ['gites-de-france.com', 'bringfido.com']
+  const LOW = ['facebook.com', 'instagram.com', 'reunion.fr', 'tripadvisor.fr', 'tripadvisor.com', 'booking.com']
   if (EXCELLENT.some(d => domain.includes(d))) return 'excellent'
   if (GOOD.some(d => domain.includes(d))) return 'good'
   if (LOW.some(d => domain.includes(d))) return 'low'
@@ -404,7 +419,15 @@ export async function analyzeUrl(url: string): Promise<AnalysisResult> {
         batch.map(async (childUrl) => {
           const childHtml = await fetchPage(childUrl)
           if (!childHtml) return null
-          return extractItemFromPage(childHtml, childUrl, domain)
+          const item = extractItemFromPage(childHtml, childUrl, domain)
+          // Discard items that look editorial: name too short or URL path flagged
+          if (!item.name || item.name === 'Lieu sans nom' || item.name.length < 4) return null
+          try {
+            const pathname = new URL(childUrl).pathname.toLowerCase()
+            if (EDITORIAL_SKIP.some(kw => pathname.includes(kw))) return null
+            if (/\/(decouv|inspir|idee|envie|a-voir|a-faire|top-\d|mag\/|actu\/|news\/)/.test(pathname)) return null
+          } catch { /* skip */ }
+          return item
         })
       )
       items.push(...results.filter((r): r is ExtractedItem => r !== null))

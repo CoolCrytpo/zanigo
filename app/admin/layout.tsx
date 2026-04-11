@@ -5,6 +5,9 @@ import { APP_NAME } from '@/config/constants'
 const ADMIN_NAV = [
   { href: '/admin',              label: '📊 Dashboard' },
   { href: '/admin/listings',     label: '📋 Fiches' },
+  { href: '/admin/import',       label: '📥 Import' },
+  { href: '/admin/staging',      label: '🔍 Staging' },
+  { href: '/admin/requests',     label: '📬 Demandes' },
   { href: '/admin/moderation',   label: '✋ Modération' },
   { href: '/admin/sponsors',     label: '📣 Sponsors' },
   { href: '/admin/settings',     label: '⚙️ Paramètres' },

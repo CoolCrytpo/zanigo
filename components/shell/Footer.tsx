@@ -27,6 +27,7 @@ const FOOTER_LINKS = [
     links: [
       { href: '/legal', label: 'Mentions légales' },
       { href: '/privacy', label: 'Confidentialité' },
+      { href: '/signaler', label: 'Signaler / Retrait' },
     ],
   },
 ]
@@ -90,7 +91,12 @@ export function Footer() {
           style={{ borderTop: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.35)' }}
         >
           <p>&copy; {year} {APP_NAME} — La Réunion</p>
-          <p>Fait avec ❤️ pou out' zanimaux</p>
+          <p>
+            <a href="mailto:contact@zanigo.re" className="hover:text-white transition-colors" style={{ color: 'rgba(255,255,255,0.45)' }}>
+              contact@zanigo.re
+            </a>
+            {' · '}Fait avec ❤️ pou out' zanimaux
+          </p>
         </div>
       </div>
     </footer>

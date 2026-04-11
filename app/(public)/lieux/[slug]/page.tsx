@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getListingBySlug, getReactionCounts } from '@/lib/db/queries'
 import { DogPolicyBadge } from '@/components/ui/DogPolicyBadge'
+import { ListingActions } from '@/components/listings/ListingActions'
 import { TrustBadge } from '@/components/ui/TrustBadge'
 import { AdSlot } from '@/components/sponsor/AdSlot'
 import { ReactionBar } from '@/features/reactions/ReactionBar'
@@ -171,18 +172,8 @@ export default async function LieuFichePage({ params }: PageProps) {
               {/* Ad slot */}
               <AdSlot slotKey="detail_footer_partner" />
 
-              {/* Correction CTA */}
-              <div
-                className="p-4 rounded-xl text-sm"
-                style={{ background: 'var(--color-vert-light)', border: '1px solid rgba(47,107,87,0.2)' }}
-              >
-                <p style={{ color: 'var(--color-muted)' }}>
-                  Une info incorrecte ou manquante ?{' '}
-                  <Link href="/contribuer" style={{ color: 'var(--color-vert)', fontWeight: 600 }}>
-                    Signaler une correction
-                  </Link>
-                </p>
-              </div>
+              {/* Correction / retrait */}
+              <ListingActions listingId={listing.id} listingSlug={listing.slug} />
             </div>
 
             {/* Sidebar */}

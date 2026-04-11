@@ -198,12 +198,24 @@ const NAV_SKIP = [
   'panier', 'cart', 'checkout', 'account', 'inscription', 'connexion',
 ]
 
+// Editorial/guide content keywords — links containing these are NOT establishments
+const EDITORIAL_SKIP = [
+  'gastronomie', 'tradition', 'culture', 'histoire', 'patrimoine', 'musee', 'musée',
+  'decouvrir', 'découvrir', 'actualite', 'actualité', 'blog', 'article', 'guide', 'conseil',
+  'agenda', 'evenement', 'événement', 'news', 'musique', 'religion', 'portrait',
+  'fable', 'agritourisme', 'paysage', 'savoir-faire', 'population', 'carte',
+  'programme', 'itineraire', 'itinéraire', 'randonnee', 'randonnée',
+  'brochure', 'presse', 'media', 'partenaire', 'recrutement', 'emploi',
+]
+
 function isNavLink(pathname: string): boolean {
   if (['/', ''].includes(pathname)) return true
   const ext = pathname.split('.').pop()?.toLowerCase()
   if (ext && ['jpg', 'png', 'pdf', 'css', 'js', 'svg', 'gif', 'webp', 'ico'].includes(ext)) return true
   const lower = pathname.toLowerCase()
-  return NAV_SKIP.some(kw => lower.includes('/' + kw))
+  if (NAV_SKIP.some(kw => lower.includes('/' + kw))) return true
+  if (EDITORIAL_SKIP.some(kw => lower.includes(kw))) return true
+  return false
 }
 
 function detectListPage(html: string, baseUrl: string, baseDomain: string): ListDetection {
@@ -297,19 +309,24 @@ function extractItemFromPage(html: string, url: string, domain: string): Extract
   const text = stripHtml(html)
   const name = extractTitle(html) || 'Lieu sans nom'
   const description = extractDescription(html)
-  const { policy, excerpt, score } = detectDogPolicy(text)
+  const { policy, excerpt } = detectDogPolicy(text)
   const commune = extractCommune(text)
   const phone = extractPhone(text)
   const email = extractEmail(html)
   const website = extractWebsite(html, domain, url)
   const address = extractAddress(text)
 
-  let confidence = score
-  if (commune) confidence += 5
-  if (phone) confidence += 5
-  if (email) confidence += 3
-  if (address) confidence += 3
-  if (excerpt) confidence += 5
+  // Confidence = factual completeness (independent of dog policy)
+  // A fiche with name+phone+commune is useful even if policy is unknown
+  let confidence = 30 // base for a real page
+  if (name && name !== 'Lieu sans nom') confidence += 10
+  if (commune) confidence += 15
+  if (phone) confidence += 15
+  if (email) confidence += 10
+  if (address) confidence += 10
+  if (website) confidence += 5
+  // Dog policy bonus only if explicitly found
+  if (policy !== 'unknown' && excerpt) confidence += 15
   confidence = Math.min(confidence, 95)
 
   return {

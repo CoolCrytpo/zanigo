@@ -116,6 +116,12 @@ export default function ImportCsvPage() {
 
         {/* Instructions */}
         <div className="card p-5">
+          <div className="mb-4 p-3 rounded-lg" style={{ background: '#f0fdf4', borderColor: '#bbf7d0', border: '1px solid' }}>
+            <p className="text-xs font-semibold mb-1" style={{ color: '#15803d' }}>💡 Phase 1 recommandée</p>
+            <p className="text-xs text-gray-600">
+              Importez d'abord les infos de base (nom, commune, tél, catégorie). La colonne <code>dog_policy</code> peut rester à <code>unknown</code> — à enrichir en phase 2 par les admins et contributeurs.
+            </p>
+          </div>
           <h2 className="font-semibold mb-3" style={{ color: 'var(--color-basalte)' }}>Format attendu</h2>
           <p className="text-sm text-gray-500 mb-3">Le CSV doit comporter au minimum ces colonnes :</p>
           <div className="flex flex-col gap-1">

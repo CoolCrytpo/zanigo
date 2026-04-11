@@ -98,6 +98,21 @@ export default function ImportUrlsPage() {
         </h1>
       </div>
 
+      {/* Methodology note */}
+      <div className="card p-4 mb-5 max-w-2xl" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
+        <p className="text-sm font-semibold mb-1" style={{ color: '#15803d' }}>💡 Méthode recommandée en 2 phases</p>
+        <p className="text-sm text-gray-600">
+          <strong>Phase 1 :</strong> importer les établissements avec leurs infos de base (nom, adresse, tel, commune).
+          La politique animaux reste <em>inconnue</em> — c'est normal et attendu.
+        </p>
+        <p className="text-sm text-gray-600 mt-1">
+          <strong>Phase 2 :</strong> enrichir la politique chien au fil du temps — par l'admin, les pros, ou les contributeurs.
+        </p>
+        <p className="text-xs text-gray-400 mt-2">
+          ⚠️ Les sites JS-dynamiques (reunion.fr, TripAdvisor…) ne sont pas extractibles par URL — utiliser le CSV à la place.
+        </p>
+      </div>
+
       <div className="card p-5 mb-5 max-w-2xl">
         <label className="text-sm font-medium block mb-2" style={{ color: 'var(--color-basalte)' }}>
           URLs à analyser <span className="text-gray-400 font-normal">(une par ligne, max 20)</span>

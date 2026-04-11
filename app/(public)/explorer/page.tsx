@@ -1,23 +1,23 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { SearchX } from 'lucide-react'
 import { ListingCard } from '@/components/listings/ListingCard'
 import type { Listing, Commune, ListingType, DogPolicyStatus } from '@/lib/types'
 
-const TYPES: { value: ListingType | ''; label: string; icon: string }[] = [
-  { value: '',        label: 'Tout',     icon: '🔍' },
-  { value: 'place',   label: 'Lieux',    icon: '🏠' },
-  { value: 'spot',    label: 'Spots',    icon: '📍' },
-  { value: 'walk',    label: 'Balades',  icon: '🥾' },
-  { value: 'service', label: 'Services', icon: '🐾' },
-]
+const TYPES = [
+  { value: '',        label: 'Tout' },
+  { value: 'place',   label: 'Restaurants & bars' },
+  { value: 'walk',    label: 'Balades & spots' },
+  { value: 'service', label: 'Services' },
+] as const
 
-const DOG_POLICIES: { value: DogPolicyStatus | ''; label: string }[] = [
+const DOG_POLICIES = [
   { value: '',            label: 'Tous statuts' },
-  { value: 'allowed',     label: '✅ Accepté' },
-  { value: 'conditional', label: '⚠️ Conditions' },
-  { value: 'unknown',     label: '❓ À confirmer' },
-]
+  { value: 'allowed',     label: 'Accepté' },
+  { value: 'conditional', label: 'Sous conditions' },
+  { value: 'unknown',     label: 'À confirmer' },
+] as const
 
 export default function ExplorerPage() {
   const [q, setQ] = useState('')
@@ -33,7 +33,7 @@ export default function ExplorerPage() {
   const [initialized, setInitialized] = useState(false)
 
   const searchRef = useRef<HTMLInputElement>(null)
-  const perPage = 24
+  const perPage = 15
 
   const doSearch = useCallback(async () => {
     setLoading(true)
@@ -93,16 +93,15 @@ export default function ExplorerPage() {
             {TYPES.map((t) => (
               <button
                 key={t.value}
-                onClick={() => { setType(t.value); setPage(1) }}
-                className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all"
+                onClick={() => { setType(t.value as ListingType | ''); setPage(1) }}
+                className="flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium border transition-all"
                 style={{
                   borderColor: type === t.value ? 'var(--color-vert)' : 'var(--color-border)',
                   background: type === t.value ? 'var(--color-vert-light)' : '#fff',
                   color: type === t.value ? 'var(--color-vert)' : 'var(--color-muted)',
                 }}
               >
-                <span>{t.icon}</span>
-                <span>{t.label}</span>
+                {t.label}
               </button>
             ))}
 
@@ -146,7 +145,9 @@ export default function ExplorerPage() {
           </div>
         ) : items.length === 0 && initialized ? (
           <div className="text-center py-20">
-            <p className="text-3xl mb-3">🐾</p>
+            <div className="flex justify-center mb-3">
+              <SearchX size={40} style={{ color: 'var(--color-muted)' }} />
+            </div>
             <p className="text-body" style={{ color: 'var(--color-muted)' }}>
               Aucun résultat pour cette recherche.
             </p>

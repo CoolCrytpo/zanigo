@@ -1,10 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import type { Metadata } from 'next'
-
-// Note: metadata export won't work in client components
-// Move to a server wrapper if SEO matters (not critical for this form page)
+import Link from 'next/link'
+import { CheckCircle } from 'lucide-react'
 
 const TYPES = [
   { value: 'new_listing', label: 'Proposer un nouveau lieu' },
@@ -20,19 +18,25 @@ const DOG_POLICIES = [
 
 export default function ContribuerPage() {
   const [type, setType] = useState('new_listing')
+  const [pseudo, setPseudo] = useState('')
+  const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
   const [commune, setCommune] = useState('')
   const [dogPolicy, setDogPolicy] = useState('unknown')
   const [conditions, setConditions] = useState('')
   const [source, setSource] = useState('')
-  const [comment, setComment] = useState('')
+  const [rgpdConsent, setRgpdConsent] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!rgpdConsent) {
+      setError('Vous devez accepter la politique de confidentialité pour continuer.')
+      return
+    }
     setSubmitting(true)
     setError(null)
     try {
@@ -41,7 +45,7 @@ export default function ContribuerPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type,
-          data: { name, address, commune, dog_policy: dogPolicy, conditions, source, comment },
+          data: { pseudo, email, name, address, commune, dog_policy: dogPolicy, conditions, source },
         }),
       })
       if (!res.ok) throw new Error()
@@ -55,13 +59,15 @@ export default function ContribuerPage() {
 
   if (success) {
     return (
-      <div className="section" style={{ background: 'var(--color-sable)' }}>
+      <div className="section" style={{ background: 'var(--color-canvas)' }}>
         <div className="container max-w-lg text-center py-16">
-          <p className="text-4xl mb-4">🐾</p>
-          <h1 className="text-h1 mb-3" style={{ color: 'var(--color-basalte)' }}>
+          <div className="flex justify-center mb-4">
+            <CheckCircle size={52} style={{ color: 'var(--color-green)' }} strokeWidth={1.5} />
+          </div>
+          <h1 className="text-h1 mb-3" style={{ color: 'var(--color-text)' }}>
             Merci !
           </h1>
-          <p className="text-body" style={{ color: 'var(--color-muted)' }}>
+          <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>
             Ta contribution a bien été reçue. On la vérifie avant publication.
           </p>
         </div>
@@ -70,19 +76,19 @@ export default function ContribuerPage() {
   }
 
   return (
-    <div className="section" style={{ background: 'var(--color-sable)' }}>
+    <div className="section" style={{ background: 'var(--color-canvas)' }}>
       <div className="container max-w-lg">
-        <h1 className="text-h1 mb-2" style={{ color: 'var(--color-basalte)' }}>
-          Contribuer
+        <h1 className="text-h1 mb-2" style={{ color: 'var(--color-text)' }}>
+          Proposer un lieu
         </h1>
-        <p className="text-body mb-8" style={{ color: 'var(--color-muted)' }}>
+        <p className="text-body mb-8" style={{ color: 'var(--color-text-secondary)' }}>
           Tu connais un lieu, spot ou service dog-friendly à La Réunion ? Partage-le.
         </p>
 
         <form onSubmit={onSubmit} className="card p-6 flex flex-col gap-5">
           {/* Type */}
           <div>
-            <label className="text-sm font-semibold block mb-2" style={{ color: 'var(--color-basalte)' }}>
+            <label className="text-sm font-semibold block mb-2" style={{ color: 'var(--color-text)' }}>
               Type de contribution
             </label>
             <div className="flex flex-col gap-2">
@@ -102,9 +108,38 @@ export default function ContribuerPage() {
             </div>
           </div>
 
+          {/* Pseudo + Email */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-semibold block mb-1.5" style={{ color: 'var(--color-text)' }}>
+                Votre pseudo
+              </label>
+              <input
+                value={pseudo}
+                onChange={(e) => setPseudo(e.target.value)}
+                placeholder="Ex: PetitChien974"
+                className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2"
+                style={{ borderColor: 'var(--color-border)' }}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-semibold block mb-1.5" style={{ color: 'var(--color-text)' }}>
+                Votre email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="pour vous répondre"
+                className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2"
+                style={{ borderColor: 'var(--color-border)' }}
+              />
+            </div>
+          </div>
+
           {/* Name */}
           <div>
-            <label className="text-sm font-semibold block mb-1.5" style={{ color: 'var(--color-basalte)' }}>
+            <label className="text-sm font-semibold block mb-1.5" style={{ color: 'var(--color-text)' }}>
               Nom du lieu *
             </label>
             <input
@@ -119,7 +154,7 @@ export default function ContribuerPage() {
 
           {/* Commune */}
           <div>
-            <label className="text-sm font-semibold block mb-1.5" style={{ color: 'var(--color-basalte)' }}>
+            <label className="text-sm font-semibold block mb-1.5" style={{ color: 'var(--color-text)' }}>
               Commune
             </label>
             <input
@@ -133,7 +168,7 @@ export default function ContribuerPage() {
 
           {/* Address */}
           <div>
-            <label className="text-sm font-semibold block mb-1.5" style={{ color: 'var(--color-basalte)' }}>
+            <label className="text-sm font-semibold block mb-1.5" style={{ color: 'var(--color-text)' }}>
               Adresse ou localisation
             </label>
             <input
@@ -147,7 +182,7 @@ export default function ContribuerPage() {
 
           {/* Dog policy */}
           <div>
-            <label className="text-sm font-semibold block mb-2" style={{ color: 'var(--color-basalte)' }}>
+            <label className="text-sm font-semibold block mb-2" style={{ color: 'var(--color-text)' }}>
               Politique chiens
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -158,9 +193,9 @@ export default function ContribuerPage() {
                   onClick={() => setDogPolicy(p.value)}
                   className="text-sm py-2 px-3 rounded-xl border font-medium transition-all"
                   style={{
-                    borderColor: dogPolicy === p.value ? 'var(--color-vert)' : 'var(--color-border)',
-                    background: dogPolicy === p.value ? 'var(--color-vert-light)' : '#fff',
-                    color: dogPolicy === p.value ? 'var(--color-vert)' : 'var(--color-muted)',
+                    borderColor: dogPolicy === p.value ? 'var(--color-green)' : 'var(--color-border)',
+                    background: dogPolicy === p.value ? 'var(--color-green-light)' : '#fff',
+                    color: dogPolicy === p.value ? 'var(--color-green)' : 'var(--color-muted)',
                   }}
                 >
                   {p.label}
@@ -171,7 +206,7 @@ export default function ContribuerPage() {
 
           {/* Conditions */}
           <div>
-            <label className="text-sm font-semibold block mb-1.5" style={{ color: 'var(--color-basalte)' }}>
+            <label className="text-sm font-semibold block mb-1.5" style={{ color: 'var(--color-text)' }}>
               Conditions ou remarques
             </label>
             <textarea
@@ -186,7 +221,7 @@ export default function ContribuerPage() {
 
           {/* Source */}
           <div>
-            <label className="text-sm font-semibold block mb-1.5" style={{ color: 'var(--color-basalte)' }}>
+            <label className="text-sm font-semibold block mb-1.5" style={{ color: 'var(--color-text)' }}>
               Source de l&apos;info
             </label>
             <input
@@ -198,19 +233,41 @@ export default function ContribuerPage() {
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {/* RGPD consent */}
+          <label className="flex items-start gap-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={rgpdConsent}
+              onChange={(e) => setRgpdConsent(e.target.checked)}
+              className="mt-0.5 accent-green-700 flex-shrink-0"
+            />
+            <span className="text-xs" style={{ color: 'var(--color-muted)', lineHeight: 1.5 }}>
+              J&apos;accepte que les informations saisies (pseudo, email, données du lieu) soient utilisées par Zanimo Guide
+              pour traiter ma contribution et me répondre si nécessaire. Ces données ne seront ni revendues ni partagées
+              avec des tiers. Conformément au RGPD, vous disposez d&apos;un droit d&apos;accès, de rectification et de
+              suppression via{' '}
+              <a href="mailto:contact@zanimo-guide.re" className="underline" style={{ color: 'var(--color-green)' }}>
+                contact@zanimo-guide.re
+              </a>.{' '}
+              <Link href="/privacy" className="underline" style={{ color: 'var(--color-green)' }}>
+                Politique de confidentialité
+              </Link>
+            </span>
+          </label>
+
+          {error && <p className="text-sm" style={{ color: 'var(--color-error)' }}>{error}</p>}
 
           <button
             type="submit"
-            disabled={submitting || !name.trim()}
+            disabled={submitting || !name.trim() || !rgpdConsent}
             className="w-full py-3 rounded-xl font-semibold text-white transition-all disabled:opacity-50"
-            style={{ background: 'var(--color-corail)' }}
+            style={{ background: 'var(--color-coral)' }}
           >
             {submitting ? 'Envoi en cours…' : 'Envoyer ma contribution'}
           </button>
 
           <p className="text-caption text-center">
-            Toute contribution est vérifiée avant publication. Merci pour ton aide !
+            Toute contribution est vérifiée avant publication.
           </p>
         </form>
       </div>

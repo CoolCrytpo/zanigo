@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 import { Menu, X, PlusCircle } from 'lucide-react'
 
 const NAV = [
-  { href: '/a-la-une', label: 'À la une' },
   { href: '/explorer', label: 'Explorer' },
 ]
 

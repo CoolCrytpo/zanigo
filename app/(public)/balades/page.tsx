@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Map } from 'lucide-react'
 import { ListingCard } from '@/components/listings/ListingCard'
 import { TRAIL_DIFFICULTY_LABELS, TRAIL_DIFFICULTY_COLORS } from '@/config/constants'
 import Link from 'next/link'
@@ -118,7 +119,9 @@ export default function BaladesPage() {
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-3xl mb-3">🥾</p>
+            <div className="flex justify-center mb-3">
+              <Map size={40} style={{ color: 'var(--color-subtle)' }} />
+            </div>
             <p className="text-body" style={{ color: 'var(--color-muted)' }}>
               Aucune balade trouvée.{' '}
               <Link href="/contribuer" style={{ color: 'var(--color-corail)' }}>

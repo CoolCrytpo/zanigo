@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Sparkles } from 'lucide-react'
 import { getPublishedListings } from '@/lib/db/queries'
 import { ListingCard } from '@/components/listings/ListingCard'
 import { AdSlot } from '@/components/sponsor/AdSlot'
@@ -24,7 +25,9 @@ export default async function ALaUnePage() {
     <div className="section" style={{ background: 'var(--color-sable)' }}>
       <div className="container">
         <div className="mb-6">
-          <p className="text-overline mb-2" style={{ color: 'var(--color-jaune)' }}>⭐ Sélection</p>
+          <p className="text-overline mb-2 flex items-center gap-1.5" style={{ color: 'var(--color-yellow)' }}>
+            <Sparkles size={11} /> Sélection
+          </p>
           <h1 className="text-h1" style={{ color: 'var(--color-basalte)' }}>À la une</h1>
           <p className="text-body mt-1" style={{ color: 'var(--color-muted)' }}>
             Les adresses mises en avant par Zanimo Guide.
@@ -35,7 +38,9 @@ export default async function ALaUnePage() {
 
         {featured.items.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-3xl mb-3">⭐</p>
+            <div className="flex justify-center mb-3">
+              <Sparkles size={40} style={{ color: 'var(--color-subtle)' }} />
+            </div>
             <p className="text-body" style={{ color: 'var(--color-muted)' }}>
               Aucune fiche mise en avant pour le moment.
             </p>

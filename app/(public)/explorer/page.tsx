@@ -1,16 +1,21 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { SearchX } from 'lucide-react'
+import { SearchX, UtensilsCrossed, BedDouble, TreePine, Stethoscope, Sparkles, Layers } from 'lucide-react'
 import { ListingCard } from '@/components/listings/ListingCard'
-import type { Listing, Commune, ListingType, DogPolicyStatus } from '@/lib/types'
+import type { Listing, Commune, DogPolicyStatus } from '@/lib/types'
 
-const TYPES = [
-  { value: '',        label: 'Tout' },
-  { value: 'place',   label: 'Restaurants & bars' },
-  { value: 'walk',    label: 'Balades & spots' },
-  { value: 'service', label: 'Services' },
+// Category filter chips — aligns with homepage categories
+const CATEGORIES = [
+  { key: '',             apiType: '',        label: 'Tout',             Icon: Layers },
+  { key: 'restaurants',  apiType: 'place',   label: 'Restaurants',      Icon: UtensilsCrossed },
+  { key: 'hebergements', apiType: 'place',   label: 'Hébergements',     Icon: BedDouble,     categorySlug: 'hebergement' },
+  { key: 'balades',      apiType: 'walk',    label: 'Balades & spots',  Icon: TreePine },
+  { key: 'services',     apiType: 'service', label: 'Services',         Icon: Stethoscope },
+  { key: 'featured',     apiType: '',        label: 'À la une',         Icon: Sparkles,      featured: true },
 ] as const
+
+type CategoryKey = typeof CATEGORIES[number]['key']
 
 const DOG_POLICIES = [
   { value: '',            label: 'Tous statuts' },
@@ -21,7 +26,7 @@ const DOG_POLICIES = [
 
 export default function ExplorerPage() {
   const [q, setQ] = useState('')
-  const [type, setType] = useState<ListingType | ''>('')
+  const [cat, setCat] = useState<CategoryKey>('')
   const [dogPolicy, setDogPolicy] = useState<DogPolicyStatus | ''>('')
   const [communeSlug, setCommuneSlug] = useState('')
   const [page, setPage] = useState(1)
@@ -37,9 +42,16 @@ export default function ExplorerPage() {
 
   const doSearch = useCallback(async () => {
     setLoading(true)
+    const activeCat = CATEGORIES.find(c => c.key === cat)
     const params = new URLSearchParams()
     if (q) params.set('q', q)
-    if (type) params.set('type', type)
+    if (activeCat?.apiType) params.set('type', activeCat.apiType)
+    if ('categorySlug' in (activeCat ?? {}) && (activeCat as { categorySlug?: string }).categorySlug) {
+      params.set('category_slug', (activeCat as { categorySlug?: string }).categorySlug!)
+    }
+    if ('featured' in (activeCat ?? {}) && (activeCat as { featured?: boolean }).featured) {
+      params.set('is_featured', 'true')
+    }
     if (dogPolicy) params.set('dog_policy', dogPolicy)
     if (communeSlug) params.set('commune_slug', communeSlug)
     params.set('page', String(page))
@@ -55,18 +67,18 @@ export default function ExplorerPage() {
       setLoading(false)
       setInitialized(true)
     }
-  }, [q, type, dogPolicy, communeSlug, page])
+  }, [q, cat, dogPolicy, communeSlug, page])
 
   useEffect(() => { void doSearch() }, [doSearch])
 
   const totalPages = Math.ceil(total / perPage)
 
   return (
-    <div style={{ background: 'var(--color-sable)', minHeight: '100dvh' }}>
+    <div style={{ background: 'var(--color-canvas)', minHeight: '100dvh' }}>
       {/* Search header */}
       <div
         className="sticky top-14 z-40 border-b"
-        style={{ background: 'rgba(245,241,232,0.97)', borderColor: 'var(--color-border)', backdropFilter: 'blur(12px)' }}
+        style={{ background: 'rgba(247,245,239,0.97)', borderColor: 'var(--color-border)', backdropFilter: 'blur(12px)' }}
       >
         <div className="container py-3">
           {/* Search input */}
@@ -88,22 +100,26 @@ export default function ExplorerPage() {
             />
           </div>
 
-          {/* Type chips */}
+          {/* Category chips */}
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {TYPES.map((t) => (
-              <button
-                key={t.value}
-                onClick={() => { setType(t.value as ListingType | ''); setPage(1) }}
-                className="flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium border transition-all"
-                style={{
-                  borderColor: type === t.value ? 'var(--color-vert)' : 'var(--color-border)',
-                  background: type === t.value ? 'var(--color-vert-light)' : '#fff',
-                  color: type === t.value ? 'var(--color-vert)' : 'var(--color-muted)',
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
+            {CATEGORIES.map((c) => {
+              const active = cat === c.key
+              return (
+                <button
+                  key={c.key}
+                  onClick={() => { setCat(c.key); setPage(1) }}
+                  className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all"
+                  style={{
+                    borderColor: active ? 'var(--color-green)' : 'var(--color-border)',
+                    background: active ? 'var(--color-green-light)' : '#fff',
+                    color: active ? 'var(--color-green)' : 'var(--color-muted)',
+                  }}
+                >
+                  <c.Icon size={13} strokeWidth={2} />
+                  {c.label}
+                </button>
+              )
+            })}
 
             <div className="flex-shrink-0 w-px mx-1" style={{ background: 'var(--color-border)' }} />
 
@@ -168,7 +184,7 @@ export default function ExplorerPage() {
                 onClick={() => setPage(p)}
                 className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-medium"
                 style={{
-                  background: p === page ? 'var(--color-vert)' : '#fff',
+                  background: p === page ? 'var(--color-green)' : '#fff',
                   color: p === page ? '#fff' : 'var(--color-muted)',
                   border: '1px solid var(--color-border)',
                 }}

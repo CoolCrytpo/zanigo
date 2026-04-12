@@ -67,15 +67,16 @@ export function Footer() {
             </div>
             <div className="flex items-center gap-4">
               <a href={`mailto:${APP_EMAIL}`}
-                className="flex items-center gap-1.5 text-sm transition-colors hover:text-white"
-                style={{ color: 'rgba(255,255,255,0.45)' }}>
-                <Mail size={14} />{APP_EMAIL}
+                className="flex items-center justify-center w-9 h-9 rounded-xl transition-colors hover:text-white"
+                style={{ color: 'rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.07)' }}
+                aria-label="Envoyer un email">
+                <Mail size={16} />
               </a>
               <a href={FB_URL} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-sm transition-colors hover:text-white"
-                style={{ color: 'rgba(255,255,255,0.45)' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                Facebook
+                className="flex items-center justify-center w-9 h-9 rounded-xl transition-colors hover:text-white"
+                style={{ color: 'rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.07)' }}
+                aria-label="Page Facebook">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
               </a>
             </div>
           </div>

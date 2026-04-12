@@ -127,7 +127,9 @@ export default async function LieuxPage({ searchParams }: PageProps) {
         {/* Grid */}
         {result.items.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-3xl mb-3">🐾</p>
+            <div className="flex justify-center mb-3">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-subtle)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </div>
             <p className="text-body" style={{ color: 'var(--color-muted)' }}>
               Aucun lieu trouvé.{' '}
               <Link href="/contribuer" style={{ color: 'var(--color-corail)' }}>

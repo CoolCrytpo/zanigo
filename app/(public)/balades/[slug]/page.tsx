@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Droplets, AlertTriangle, Trees, Waves, Mountain, Map } from 'lucide-react'
 import { getListingBySlug, getReactionCounts } from '@/lib/db/queries'
 import { DogPolicyBadge } from '@/components/ui/DogPolicyBadge'
 import { TrustBadge } from '@/components/ui/TrustBadge'
@@ -67,7 +68,9 @@ export default async function BaladeFichePage({ params }: PageProps) {
           {listing.cover_url ? (
             <Image src={listing.cover_url} alt={listing.title} fill className="object-cover opacity-80" priority sizes="100vw" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-6xl">🥾</div>
+            <div className="w-full h-full flex items-center justify-center">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+            </div>
           )}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(31,35,32,0.85) 0%, transparent 55%)' }} />
 
@@ -85,7 +88,7 @@ export default async function BaladeFichePage({ params }: PageProps) {
 
           <div className="absolute bottom-0 left-0 right-0 container pb-6">
             <p className="text-overline mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              🥾 Balade{listing.commune && ` — ${listing.commune.name}`}
+              Balade{listing.commune && ` — ${listing.commune.name}`}
             </p>
             <h1 className="text-h1 text-white" style={{ fontFamily: 'var(--font-display)' }}>
               {listing.title}
@@ -131,37 +134,36 @@ export default async function BaladeFichePage({ params }: PageProps) {
                   {/* Dog-specific trail info */}
                   <div className="flex flex-wrap gap-2">
                     {td.leash_required && (
-                      <span className="text-xs px-3 py-1 rounded-full" style={{ background: '#fef3c7', color: '#92400e' }}>
-                        🦮 Laisse obligatoire
+                      <span className="text-xs px-3 py-1 rounded-full inline-flex items-center gap-1" style={{ background: '#fef3c7', color: '#92400e' }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        Laisse obligatoire
                       </span>
                     )}
                     {td.has_water_points && (
-                      <span className="text-xs px-3 py-1 rounded-full" style={{ background: 'var(--color-vert-light)', color: 'var(--color-vert)' }}>
-                        💧 Point d&apos;eau
+                      <span className="text-xs px-3 py-1 rounded-full inline-flex items-center gap-1" style={{ background: 'var(--color-vert-light)', color: 'var(--color-vert)' }}>
+                        <Droplets size={11} /> Point d&apos;eau
                       </span>
                     )}
                     {td.regulated_zones && (
-                      <span className="text-xs px-3 py-1 rounded-full" style={{ background: '#fee2e2', color: '#991b1b' }}>
-                        ⚠️ Zone réglementée
+                      <span className="text-xs px-3 py-1 rounded-full inline-flex items-center gap-1" style={{ background: '#fee2e2', color: '#991b1b' }}>
+                        <AlertTriangle size={11} /> Zone réglementée
                       </span>
                     )}
                     {td.terrain_type && (
-                      <span className="text-xs px-3 py-1 rounded-full" style={{ background: 'var(--color-vert-light)', color: 'var(--color-vert)' }}>
-                        {{
-                          forest: '🌲 Forêt',
-                          coastal: '🌊 Côtier',
-                          mountain: '⛰️ Montagne',
-                          mixed: '🗺️ Mixte',
-                        }[td.terrain_type]}
+                      <span className="text-xs px-3 py-1 rounded-full inline-flex items-center gap-1" style={{ background: 'var(--color-vert-light)', color: 'var(--color-vert)' }}>
+                        {td.terrain_type === 'forest'   && <><Trees size={11} /> Forêt</>}
+                        {td.terrain_type === 'coastal'  && <><Waves size={11} /> Côtier</>}
+                        {td.terrain_type === 'mountain' && <><Mountain size={11} /> Montagne</>}
+                        {td.terrain_type === 'mixed'    && <><Map size={11} /> Mixte</>}
                       </span>
                     )}
                   </div>
 
                   {td.water_points_desc && (
-                    <p className="text-caption mt-3">💧 {td.water_points_desc}</p>
+                    <p className="text-caption mt-3 flex items-center gap-1"><Droplets size={11} /> {td.water_points_desc}</p>
                   )}
                   {td.regulated_zones && (
-                    <p className="text-caption mt-1" style={{ color: '#991b1b' }}>⚠️ {td.regulated_zones}</p>
+                    <p className="text-caption mt-1 flex items-center gap-1" style={{ color: '#991b1b' }}><AlertTriangle size={11} /> {td.regulated_zones}</p>
                   )}
                 </div>
               )}
@@ -230,7 +232,8 @@ export default async function BaladeFichePage({ params }: PageProps) {
                   className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold text-white"
                   style={{ background: 'var(--color-lagon)' }}
                 >
-                  🗺️ Point de départ
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                  Point de départ
                 </a>
               )}
 

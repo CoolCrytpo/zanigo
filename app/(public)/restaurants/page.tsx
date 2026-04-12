@@ -1,4 +1,4 @@
 import { redirect } from 'next/navigation'
 export default function RestaurantsPage() {
-  redirect('/explorer?type=place')
+  redirect('/explorer')
 }

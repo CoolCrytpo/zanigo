@@ -1,5 +1,6 @@
 import { TopNav } from '@/components/shell/TopNav'
 import { Footer } from '@/components/shell/Footer'
+import { CookieBanner } from '@/components/ui/CookieBanner'
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -7,6 +8,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <TopNav />
       <main className="flex-1">{children}</main>
       <Footer />
+      <CookieBanner />
     </div>
   )
 }

@@ -1,16 +1,15 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Search, UtensilsCrossed, BedDouble, TreePine, Stethoscope, Sparkles, BadgeCheck, ArrowRight, MapPin } from 'lucide-react'
-import { getPublishedListings } from '@/lib/db/queries'
-import { ListingCard } from '@/components/listings/ListingCard'
+import {
+  UtensilsCrossed, BedDouble, TreePine, Stethoscope, Sparkles, BadgeCheck, ArrowRight,
+} from 'lucide-react'
 import { HOME_CATEGORIES } from '@/config/constants'
 
 export const metadata: Metadata = {
   title: "Zanimo Guide — L'annuaire péi pour son animal",
 }
 
-// Map icon name → Lucide component
-function CategoryIcon({ name, size = 22, color }: { name: string; size?: number; color: string }) {
+function CategoryIcon({ name, size = 20, color }: { name: string; size?: number; color: string }) {
   const props = { size, strokeWidth: 1.75, color }
   if (name === 'UtensilsCrossed') return <UtensilsCrossed {...props} />
   if (name === 'BedDouble')       return <BedDouble {...props} />
@@ -18,19 +17,13 @@ function CategoryIcon({ name, size = 22, color }: { name: string; size?: number;
   if (name === 'Stethoscope')     return <Stethoscope {...props} />
   if (name === 'Sparkles')        return <Sparkles {...props} />
   if (name === 'BadgeCheck')      return <BadgeCheck {...props} />
-  return <MapPin {...props} />
+  return null
 }
 
-export default async function HomePage() {
-  let recent: Awaited<ReturnType<typeof getPublishedListings>>['items'] = []
-  try {
-    const result = await getPublishedListings({ page: 1, per_page: 8 })
-    recent = result.items
-  } catch { /* DB not ready */ }
-
+export default function HomePage() {
   return (
     <>
-      {/* ── INTRO + SEARCH ── */}
+      {/* ── HERO ── */}
       <section className="section" style={{ background: 'var(--color-canvas)', paddingBottom: '2rem' }}>
         <div className="container">
           <div className="max-w-2xl">
@@ -45,20 +38,11 @@ export default async function HomePage() {
               Restaurants, hébergements, balades, spots et services —
               tout ce qu&apos;il faut pour vivre La Réunion avec ton animal.
             </p>
-
-            {/* Search bar */}
             <Link
               href="/explorer"
-              className="flex items-center gap-3 rounded-2xl px-4 py-3.5 max-w-lg text-sm shadow-sm"
-              style={{
-                background: 'var(--color-surface)',
-                border: '1.5px solid var(--color-border)',
-                color: 'var(--color-muted)',
-                transition: 'all 150ms ease',
-              }}
+              className="btn-primary inline-flex"
             >
-              <Search size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
-              <span>Chercher un lieu, un spot, une balade…</span>
+              Explorer l&apos;annuaire <ArrowRight size={16} />
             </Link>
           </div>
         </div>
@@ -91,27 +75,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ── RÉCENTS ── */}
-      {recent.length > 0 && (
-        <section className="section" style={{ background: 'var(--color-canvas)' }}>
-          <div className="container">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-h2" style={{ color: 'var(--color-text)' }}>
-                Derniers ajouts
-              </h2>
-              <Link href="/explorer"
-                className="flex items-center gap-1 text-sm font-semibold"
-                style={{ color: 'var(--color-blue)' }}>
-                Explorer tout <ArrowRight size={14} />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {recent.map((l) => <ListingCard key={l.id} listing={l} />)}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ── COMMENT ÇA MARCHE ── */}
       <section className="section" style={{ background: 'var(--color-surface)', borderTop: '1px solid var(--color-border)' }}>

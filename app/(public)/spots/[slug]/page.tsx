@@ -52,12 +52,14 @@ export default async function SpotFichePage({ params }: PageProps) {
           {listing.cover_url ? (
             <Image src={listing.cover_url} alt={listing.title} fill className="object-cover opacity-80" priority sizes="100vw" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-6xl">{listing.category?.icon ?? '📍'}</div>
+            <div className="w-full h-full flex items-center justify-center">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
           )}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(31,35,32,0.8) 0%, transparent 55%)' }} />
           <div className="absolute bottom-0 left-0 right-0 container pb-6">
             <p className="text-overline mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              {listing.category?.icon} {listing.category?.label}{listing.commune && ` — ${listing.commune.name}`}
+              {listing.category?.label}{listing.commune && ` — ${listing.commune.name}`}
             </p>
             <h1 className="text-h1 text-white" style={{ fontFamily: 'var(--font-display)' }}>{listing.title}</h1>
           </div>
@@ -113,15 +115,22 @@ export default async function SpotFichePage({ params }: PageProps) {
                 <div className="card p-5">
                   <h2 className="text-overline mb-3">Infos</h2>
                   <div className="flex flex-col gap-2 text-sm">
-                    {listing.address && <div className="flex gap-2"><span>📍</span><span>{listing.address}</span></div>}
+                    {listing.address && (
+                      <div className="flex gap-2 items-start">
+                        <svg className="mt-0.5 shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span>{listing.address}</span>
+                      </div>
+                    )}
                     {listing.contact_phone && (
-                      <div className="flex gap-2"><span>📞</span>
-                        <a href={`tel:${listing.contact_phone}`} style={{ color: 'var(--color-vert)' }}>{formatPhone(listing.contact_phone)}</a>
+                      <div className="flex gap-2 items-center">
+                        <svg className="shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        <a href={`tel:${listing.contact_phone}`} style={{ color: 'var(--color-green)' }}>{formatPhone(listing.contact_phone)}</a>
                       </div>
                     )}
                     {listing.website_url && (
-                      <div className="flex gap-2"><span>🌐</span>
-                        <a href={listing.website_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-lagon)' }}>Site web</a>
+                      <div className="flex gap-2 items-center">
+                        <svg className="shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        <a href={listing.website_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-blue)' }}>Site web</a>
                       </div>
                     )}
                   </div>
@@ -130,9 +139,10 @@ export default async function SpotFichePage({ params }: PageProps) {
                       href={`https://www.google.com/maps/dir/?api=1&destination=${listing.lat},${listing.lng}`}
                       target="_blank" rel="noopener noreferrer"
                       className="mt-4 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-white"
-                      style={{ background: 'var(--color-lagon)' }}
+                      style={{ background: 'var(--color-blue)' }}
                     >
-                      🗺️ Itinéraire
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                      Itinéraire
                     </a>
                   )}
                 </div>

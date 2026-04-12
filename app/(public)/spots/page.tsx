@@ -74,7 +74,9 @@ export default async function SpotsPage({ searchParams }: PageProps) {
 
         {result.items.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-3xl mb-3">📍</p>
+            <div className="flex justify-center mb-3">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-subtle)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
             <p className="text-body" style={{ color: 'var(--color-muted)' }}>
               Aucun spot trouvé.{' '}
               <Link href="/contribuer" style={{ color: 'var(--color-corail)' }}>

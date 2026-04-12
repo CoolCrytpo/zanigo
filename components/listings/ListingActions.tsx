@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { Settings, Pencil, Trash2, Mail } from 'lucide-react'
 
 interface ListingActionsProps {
   listingId: string
@@ -17,7 +18,7 @@ export function ListingActions({ listingId, listingSlug }: ListingActionsProps) 
         onClick={() => setOpen(!open)}
         className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
       >
-        ⚙️ Vous gérez ce lieu ou vous avez une remarque ?
+        <Settings size={12} className="inline mr-1" /> Vous gérez ce lieu ou vous avez une remarque ?
       </button>
       {open && (
         <div className="flex flex-wrap gap-3 mt-3">
@@ -26,21 +27,21 @@ export function ListingActions({ listingId, listingSlug }: ListingActionsProps) 
             className="text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors hover:bg-gray-50"
             style={{ borderColor: '#e2e8f0', color: '#374151' }}
           >
-            ✏️ Corriger cette fiche
+            <Pencil size={11} className="inline mr-1" /> Corriger cette fiche
           </Link>
           <Link
             href={`/retrait/${listingSlug}?id=${listingId}`}
             className="text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors hover:bg-gray-50"
             style={{ borderColor: '#e2e8f0', color: '#374151' }}
           >
-            🗑️ Demander le retrait
+            <Trash2 size={11} className="inline mr-1" /> Demander le retrait
           </Link>
           <a
-            href="mailto:contact@zanigo.re"
+            href="mailto:contact@zanimo-guide.re"
             className="text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors hover:bg-gray-50"
             style={{ borderColor: '#e2e8f0', color: '#374151' }}
           >
-            ✉️ Nous contacter
+            <Mail size={11} className="inline mr-1" /> Nous contacter
           </a>
         </div>
       )}

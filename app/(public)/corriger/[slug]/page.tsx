@@ -60,7 +60,9 @@ export default function CorrigerPage() {
       <div className="section">
         <div className="container max-w-lg">
           <div className="card p-8 text-center">
-            <div className="text-4xl mb-4">✅</div>
+            <div className="flex justify-center mb-4">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1FA97E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
             <h1 className="text-h2 mb-2" style={{ color: 'var(--color-basalte)' }}>Demande envoyée</h1>
             <p className="text-gray-500 text-sm mb-6">
               Votre demande de correction a bien été reçue. Nous la traiterons dans les meilleurs délais.

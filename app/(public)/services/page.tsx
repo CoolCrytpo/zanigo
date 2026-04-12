@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { SearchX } from 'lucide-react'
 import { getPublishedListings, getAllCommunes, getCategoriesByType } from '@/lib/db/queries'
 import { ListingCard } from '@/components/listings/ListingCard'
 import Link from 'next/link'
@@ -98,7 +99,7 @@ export default async function ServicesPage({ searchParams }: PageProps) {
                   color: sp.category === cat.slug ? 'var(--color-vert)' : 'var(--color-muted)',
                 }}
               >
-                {cat.icon} {cat.label}
+                {cat.label}
               </Link>
             ))}
           </div>
@@ -106,7 +107,9 @@ export default async function ServicesPage({ searchParams }: PageProps) {
 
         {result.items.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-3xl mb-3">🐾</p>
+            <div className="flex justify-center mb-3">
+              <SearchX size={40} style={{ color: 'var(--color-subtle)' }} />
+            </div>
             <p className="text-body" style={{ color: 'var(--color-muted)' }}>
               Aucun service trouvé.{' '}
               <Link href="/contribuer" style={{ color: 'var(--color-corail)' }}>

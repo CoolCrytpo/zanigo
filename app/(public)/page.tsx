@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { UtensilsCrossed, BedDouble, TreePine, Stethoscope, BadgeCheck, ChevronRight } from 'lucide-react'
 import { getPublishedListings } from '@/lib/db/queries'
 import { ListingCard } from '@/components/listings/ListingCard'
+import pool from '@/lib/db/client'
 
 export const metadata: Metadata = {
   title: "Zanimo Guide — Le guide péi des lieux pensés pour les animaux",
@@ -23,6 +24,23 @@ const HOW_IT_WORKS = [
   { step: '4', text: 'Propose un lieu ou un service, chaque suggestion est vérifiée avant publication' },
 ]
 
+async function getPublicStats() {
+  try {
+    const result = await pool.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE dog_policy_status = 'allowed' AND is_published) AS adapted,
+        COUNT(*) FILTER (WHERE is_published) AS total,
+        COUNT(DISTINCT commune_id) FILTER (WHERE is_published) AS communes
+      FROM listings
+    `)
+    return {
+      adapted: parseInt(result.rows[0].adapted) || 0,
+      total: parseInt(result.rows[0].total) || 0,
+      communes: parseInt(result.rows[0].communes) || 0,
+    }
+  } catch { return { adapted: 0, total: 0, communes: 0 } }
+}
+
 export default async function HomePage() {
   // Load featured listings for carousel
   let featured: Awaited<ReturnType<typeof getPublishedListings>>['items'] = []
@@ -30,6 +48,8 @@ export default async function HomePage() {
     const result = await getPublishedListings({ page: 1, per_page: 12 })
     featured = result.items.filter(l => l.is_featured)
   } catch { /* DB not ready */ }
+
+  const stats = await getPublicStats()
 
   return (
     <>
@@ -109,6 +129,34 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── STATS ── */}
+      {(stats.total > 0 || stats.communes > 0) && (
+        <section style={{ background: 'var(--color-canvas)', paddingBottom: '1rem' }}>
+          <div className="container">
+            <div className="grid grid-cols-3 gap-3 max-w-lg mx-auto text-center">
+              <div className="p-4">
+                <p className="text-2xl font-bold mb-0.5" style={{ color: 'var(--color-vert)', fontFamily: 'var(--font-display)' }}>
+                  {stats.adapted > 0 ? `+${stats.adapted}` : '—'}
+                </p>
+                <p className="text-xs" style={{ color: 'var(--color-muted)', lineHeight: 1.4 }}>Lieux adaptés</p>
+              </div>
+              <div className="p-4" style={{ borderLeft: '1px solid var(--color-border)', borderRight: '1px solid var(--color-border)' }}>
+                <p className="text-2xl font-bold mb-0.5" style={{ color: 'var(--color-blue)', fontFamily: 'var(--font-display)' }}>
+                  {stats.total > 0 ? `+${stats.total}` : '—'}
+                </p>
+                <p className="text-xs" style={{ color: 'var(--color-muted)', lineHeight: 1.4 }}>Adresses référencées</p>
+              </div>
+              <div className="p-4">
+                <p className="text-2xl font-bold mb-0.5" style={{ color: 'var(--color-basalte)', fontFamily: 'var(--font-display)' }}>
+                  {stats.communes > 0 ? stats.communes : '—'}
+                </p>
+                <p className="text-xs" style={{ color: 'var(--color-muted)', lineHeight: 1.4 }}>Communes</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── COMMENT ÇA MARCHE ── */}
       <section className="section" style={{ background: 'var(--color-surface)', borderTop: '1px solid var(--color-border)' }}>

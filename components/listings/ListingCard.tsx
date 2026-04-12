@@ -21,17 +21,45 @@ function policyAccent(status: string | null | undefined): string {
   return DOG_POLICY_COLORS[status ?? 'unknown'] ?? '#94A3B8'
 }
 
+// Border color = listing type / category
+const TYPE_ACCENT: Record<string, string> = {
+  place:   '#FF6B57',
+  walk:    '#1FA97E',
+  spot:    '#1FA97E',
+  service: '#8B5CF6',
+}
+// Override for specific category slugs (hebergements are type='place' but different color)
+const CATEGORY_ACCENT: Record<string, string> = {
+  hotel:       '#2A74E6',
+  gite:        '#2A74E6',
+  hebergement: '#2A74E6',
+  chambre:     '#2A74E6',
+  camping:     '#2A74E6',
+  pension:     '#2A74E6',
+  location:    '#2A74E6',
+  activite:    '#F4B73F',
+  spa:         '#F4B73F',
+}
+function categoryAccent(listing: Listing): string {
+  const slug = listing.category?.slug ?? ''
+  for (const [key, color] of Object.entries(CATEGORY_ACCENT)) {
+    if (slug.includes(key)) return color
+  }
+  return TYPE_ACCENT[listing.type] ?? '#94A3B8'
+}
+
 export function ListingCard({ listing }: Props) {
   const href = `${LISTING_TYPE_PATHS[listing.type] ?? '/lieux'}/${listing.slug}`
+  const border = categoryAccent(listing)
   const accent = policyAccent(listing.dog_policy_status)
 
   return (
     <article
       className="card card-hover flex flex-col overflow-hidden"
       style={{
-        borderLeft: `3px solid ${accent}`,
+        borderLeft: `3px solid ${border}`,
         boxShadow: listing.dog_policy_status === 'allowed'
-          ? `0 0 0 1px ${accent}20, 0 2px 8px ${accent}12`
+          ? `0 0 0 1px ${border}20, 0 2px 8px ${border}12`
           : undefined,
       }}
     >

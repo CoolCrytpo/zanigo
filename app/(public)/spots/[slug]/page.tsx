@@ -10,6 +10,7 @@ import { ReactionBar } from '@/features/reactions/ReactionBar'
 import { formatDate, formatPhone } from '@/lib/utils'
 import { APP_URL } from '@/config/constants'
 import { ShareButton } from '@/components/ui/ShareButton'
+import { CommentForm } from '@/components/listings/CommentForm'
 
 interface PageProps { params: Promise<{ slug: string }> }
 
@@ -100,6 +101,11 @@ export default async function SpotFichePage({ params }: PageProps) {
               <div className="card p-5">
                 <h2 className="text-overline mb-3">Utile ?</h2>
                 <ReactionBar listingId={listing.id} initialCounts={reactionCounts} />
+              </div>
+              {/* Comments */}
+              <div className="card p-5">
+                <h2 className="text-overline mb-3">Partage ton expérience</h2>
+                <CommentForm listingId={listing.id} />
               </div>
               <AdSlot slotKey="detail_footer_partner" />
               <div className="p-4 rounded-xl text-sm" style={{ background: 'var(--color-vert-light)', border: '1px solid rgba(47,107,87,0.2)' }}>

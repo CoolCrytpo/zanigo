@@ -9,7 +9,9 @@ const ADMIN_NAV = [
   { href: '/admin/staging',      label: 'Staging' },
   { href: '/admin/requests',     label: 'Demandes' },
   { href: '/admin/moderation',   label: 'Modération' },
-  { href: '/admin/sponsors',     label: 'Sponsors' },
+  { href: '/admin/events',       label: 'Événements' },
+  { href: '/admin/encarts',      label: 'Encarts' },
+  { href: '/admin/espace-pro',   label: 'Espace pro' },
   { href: '/admin/stats',        label: 'Statistiques' },
   { href: '/admin/settings',     label: 'Paramètres' },
 ]

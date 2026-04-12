@@ -6,7 +6,7 @@ import { ListingCard } from '@/components/listings/ListingCard'
 import pool from '@/lib/db/client'
 
 export const metadata: Metadata = {
-  title: "Zanimo Guide — Le guide péi des lieux pensés pour les animaux",
+  title: 'Zanimo Guide — Le guide péi des lieux pensés pour les animaux',
 }
 
 const CATEGORIES = [
@@ -18,10 +18,10 @@ const CATEGORIES = [
 ] as const
 
 const HOW_IT_WORKS = [
-  { step: '1', text: 'Des lieux pensés pour les animaux. Vérifiés.' },
-  { step: '2', text: 'Infos pratiques : accueil des animaux, conditions, contacts' },
-  { step: '3', text: 'Partage ton expérience ou signale une erreur' },
-  { step: '4', text: 'Propose un lieu ou un service, chaque suggestion est vérifiée avant publication' },
+  { step: '1', text: 'Lieux vérifiés', sub: 'Chaque adresse est contrôlée avant publication' },
+  { step: '2', text: 'Infos complètes', sub: 'Politique animaux, conditions, contacts' },
+  { step: '3', text: 'Ton retour compte', sub: 'Réactions, expériences, signalements' },
+  { step: '4', text: 'Tu proposes', sub: 'Chaque suggestion est vérifiée avant mise en ligne' },
 ]
 
 async function getPublicStats() {
@@ -35,14 +35,13 @@ async function getPublicStats() {
     `)
     return {
       adapted: parseInt(result.rows[0].adapted) || 0,
-      total: parseInt(result.rows[0].total) || 0,
+      total:   parseInt(result.rows[0].total)   || 0,
       communes: parseInt(result.rows[0].communes) || 0,
     }
   } catch { return { adapted: 0, total: 0, communes: 0 } }
 }
 
 export default async function HomePage() {
-  // Load featured listings for carousel
   let featured: Awaited<ReturnType<typeof getPublishedListings>>['items'] = []
   try {
     const result = await getPublishedListings({ page: 1, per_page: 12 })
@@ -54,12 +53,28 @@ export default async function HomePage() {
   return (
     <>
       {/* ── HERO ── */}
-      <section className="section" style={{ background: 'var(--color-canvas)', paddingBottom: '1.5rem' }}>
+      <section
+        className="section"
+        style={{
+          background: 'var(--color-canvas)',
+          paddingBottom: '1.5rem',
+          backgroundImage: 'radial-gradient(circle at 1px 1px, var(--color-border) 1px, transparent 0)',
+          backgroundSize: '24px 24px',
+        }}
+      >
         <div className="container">
           <div className="max-w-2xl">
             <h1 className="text-display mb-3" style={{ color: 'var(--color-text)' }}>
               Sors avec ton animal.{' '}
-              <span style={{ color: 'var(--color-blue)' }}>Sans te prendre la tête.</span>
+              <span
+                style={{
+                  color: 'var(--color-blue)',
+                  borderBottom: '3px solid var(--color-vert)',
+                  paddingBottom: '1px',
+                }}
+              >
+                Sans te prendre la tête.
+              </span>
             </h1>
             <p className="text-body-lg" style={{ color: 'var(--color-text-secondary)' }}>
               Restaurants, balades, hébergements et services pour profiter de La Réunion avec ton animal.
@@ -68,36 +83,24 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── CARROUSEL À LA UNE (only if featured items exist) ── */}
+      {/* ── CARROUSEL À LA UNE ── */}
       {featured.length > 0 && (
         <section style={{ background: 'var(--color-canvas)', paddingBottom: '2rem' }}>
           <div className="container">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold text-sm uppercase tracking-wider" style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-ui)' }}>
+              <h2 className="font-bold text-xs uppercase tracking-widest" style={{ color: 'var(--color-muted)' }}>
                 À la une
               </h2>
-              <Link href="/a-la-une"
-                className="flex items-center gap-1 text-xs font-semibold"
-                style={{ color: 'var(--color-blue)' }}>
+              <Link href="/a-la-une" className="flex items-center gap-1 text-xs font-semibold" style={{ color: 'var(--color-blue)' }}>
                 Voir tout <ChevronRight size={13} />
               </Link>
             </div>
-            {/* Horizontal scroll carousel */}
             <div
               className="flex gap-3 overflow-x-auto pb-2"
-              style={{
-                scrollSnapType: 'x mandatory',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-              }}
+              style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {featured.map(listing => (
-                <div key={listing.id}
-                  style={{
-                    scrollSnapAlign: 'start',
-                    flexShrink: 0,
-                    width: 'clamp(240px, 70vw, 300px)',
-                  }}>
+                <div key={listing.id} style={{ scrollSnapAlign: 'start', flexShrink: 0, width: 'clamp(240px, 70vw, 300px)' }}>
                   <ListingCard listing={listing} />
                 </div>
               ))}
@@ -106,24 +109,58 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── CATÉGORIES ── */}
-      <section style={{ background: 'var(--color-canvas)', paddingBottom: '3rem' }}>
+      {/* ── CATÉGORIES — vignette style ── */}
+      <section style={{ background: 'var(--color-canvas)', paddingBottom: '2.5rem' }}>
         <div className="container">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {CATEGORIES.map(({ href, label, desc, Icon, color, bg }) => (
-              <Link key={href} href={href}
-                className="card card-hover p-4 flex flex-col gap-3 group">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ background: bg }}>
-                  <Icon size={20} strokeWidth={1.75} style={{ color }} />
+              <Link
+                key={href}
+                href={href}
+                className="group relative overflow-hidden rounded-2xl flex flex-col justify-between"
+                style={{
+                  minHeight: 140,
+                  background: bg,
+                  border: `1.5px solid ${color}22`,
+                  transition: 'border-color 0.15s, box-shadow 0.15s, transform 0.15s',
+                  textDecoration: 'none',
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget
+                  el.style.borderColor = `${color}55`
+                  el.style.boxShadow = `0 4px 20px ${color}18`
+                  el.style.transform = 'translateY(-2px)'
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget
+                  el.style.borderColor = `${color}22`
+                  el.style.boxShadow = 'none'
+                  el.style.transform = 'translateY(0)'
+                }}
+              >
+                {/* Icon zone */}
+                <div className="flex items-center justify-center pt-5 pb-3">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                    style={{ background: `${color}18` }}
+                  >
+                    <Icon size={24} strokeWidth={1.5} style={{ color }} />
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-sm mb-0.5"
-                    style={{ color: 'var(--color-text)', fontFamily: 'var(--font-display)' }}>
+
+                {/* Text zone */}
+                <div className="px-4 pb-4">
+                  <p className="font-semibold text-sm mb-0.5" style={{ color: 'var(--color-text)', fontFamily: 'var(--font-display)' }}>
                     {label}
                   </p>
-                  <p className="text-caption">{desc}</p>
+                  <p className="text-xs leading-snug" style={{ color: 'var(--color-muted)' }}>{desc}</p>
                 </div>
+
+                {/* Accent line bottom */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                  style={{ background: `linear-gradient(90deg, ${color}60, ${color}20)` }}
+                />
               </Link>
             ))}
           </div>
@@ -131,27 +168,64 @@ export default async function HomePage() {
       </section>
 
       {/* ── STATS ── */}
-      {(stats.total > 0 || stats.communes > 0) && (
-        <section style={{ background: 'var(--color-canvas)', paddingBottom: '1rem' }}>
+      {stats.total > 0 && (
+        <section style={{ background: 'var(--color-canvas)', paddingBottom: '2.5rem' }}>
           <div className="container">
-            <div className="grid grid-cols-3 gap-3 max-w-lg mx-auto text-center">
-              <div className="p-4">
-                <p className="text-2xl font-bold mb-0.5" style={{ color: 'var(--color-vert)', fontFamily: 'var(--font-display)' }}>
-                  {stats.adapted > 0 ? `+${stats.adapted}` : '—'}
-                </p>
-                <p className="text-xs" style={{ color: 'var(--color-muted)', lineHeight: 1.4 }}>Lieux adaptés</p>
+            <div
+              className="max-w-xl mx-auto rounded-2xl overflow-hidden"
+              style={{ border: '1px solid var(--color-border)', background: 'linear-gradient(135deg, #f8faf9 0%, #f0f8f4 100%)' }}
+            >
+              <div className="grid grid-cols-3">
+                {[
+                  {
+                    value: stats.adapted > 0 ? `+${stats.adapted}` : '—',
+                    label: 'Lieux adaptés',
+                    color: '#1FA97E',
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1FA97E" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    ),
+                  },
+                  {
+                    value: stats.total > 0 ? `+${stats.total}` : '—',
+                    label: 'Adresses',
+                    color: '#2A74E6',
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2A74E6" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                      </svg>
+                    ),
+                  },
+                  {
+                    value: stats.communes > 0 ? String(stats.communes) : '—',
+                    label: 'Communes',
+                    color: '#1A2030',
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A2030" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                      </svg>
+                    ),
+                  },
+                ].map((s, i) => (
+                  <div
+                    key={s.label}
+                    className="flex flex-col items-center justify-center py-5 px-3 text-center"
+                    style={{ borderRight: i < 2 ? '1px solid var(--color-border)' : undefined }}
+                  >
+                    <div className="mb-2 opacity-70">{s.icon}</div>
+                    <p className="text-2xl font-bold leading-none mb-1" style={{ color: s.color, fontFamily: 'var(--font-display)' }}>
+                      {s.value}
+                    </p>
+                    <p className="text-xs" style={{ color: 'var(--color-muted)' }}>{s.label}</p>
+                  </div>
+                ))}
               </div>
-              <div className="p-4" style={{ borderLeft: '1px solid var(--color-border)', borderRight: '1px solid var(--color-border)' }}>
-                <p className="text-2xl font-bold mb-0.5" style={{ color: 'var(--color-blue)', fontFamily: 'var(--font-display)' }}>
-                  {stats.total > 0 ? `+${stats.total}` : '—'}
+              <div className="px-5 py-2.5 text-center" style={{ borderTop: '1px solid var(--color-border)', background: 'rgba(31,169,126,0.04)' }}>
+                <p className="text-xs font-medium" style={{ color: 'var(--color-vert)' }}>
+                  Grandit chaque semaine — <Link href="/ajouter-lieu" style={{ textDecoration: 'underline', color: 'var(--color-vert)' }}>Propose un lieu</Link>
                 </p>
-                <p className="text-xs" style={{ color: 'var(--color-muted)', lineHeight: 1.4 }}>Adresses référencées</p>
-              </div>
-              <div className="p-4">
-                <p className="text-2xl font-bold mb-0.5" style={{ color: 'var(--color-basalte)', fontFamily: 'var(--font-display)' }}>
-                  {stats.communes > 0 ? stats.communes : '—'}
-                </p>
-                <p className="text-xs" style={{ color: 'var(--color-muted)', lineHeight: 1.4 }}>Communes</p>
               </div>
             </div>
           </div>
@@ -161,18 +235,50 @@ export default async function HomePage() {
       {/* ── COMMENT ÇA MARCHE ── */}
       <section className="section" style={{ background: 'var(--color-surface)', borderTop: '1px solid var(--color-border)' }}>
         <div className="container">
-          <h2 className="text-h2 mb-6 text-center" style={{ color: 'var(--color-text)' }}>
+          <h2 className="text-h2 mb-8 text-center" style={{ color: 'var(--color-text)' }}>
             Comment ça marche ?
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-            {HOW_IT_WORKS.map((s) => (
-              <div key={s.step} className="flex flex-col items-center text-center gap-3 p-4">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm"
-                  style={{ background: 'var(--color-blue-light)', color: 'var(--color-blue)' }}>
+
+          {/* Desktop: horizontal with connecting line */}
+          <div className="hidden md:flex items-start max-w-3xl mx-auto relative">
+            {/* Connecting line */}
+            <div
+              className="absolute top-5 left-0 right-0"
+              style={{ height: 1, background: 'linear-gradient(90deg, transparent, var(--color-border) 10%, var(--color-border) 90%, transparent)', zIndex: 0 }}
+            />
+            {HOW_IT_WORKS.map((s, i) => (
+              <div key={s.step} className="flex-1 flex flex-col items-center text-center px-4 relative z-10">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm mb-3"
+                  style={{ background: 'var(--color-vert)', color: '#fff', fontFamily: 'var(--font-display)', boxShadow: '0 0 0 4px var(--color-surface)' }}
+                >
                   {s.step}
                 </div>
-                <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                <p className="font-semibold text-sm mb-1" style={{ color: 'var(--color-text)', fontFamily: 'var(--font-display)' }}>
                   {s.text}
+                </p>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--color-muted)' }}>
+                  {s.sub}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile: 2×2 grid */}
+          <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto md:hidden">
+            {HOW_IT_WORKS.map(s => (
+              <div key={s.step} className="flex flex-col items-center text-center gap-2 p-3">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm"
+                  style={{ background: 'var(--color-vert)', color: '#fff', fontFamily: 'var(--font-display)' }}
+                >
+                  {s.step}
+                </div>
+                <p className="font-semibold text-sm" style={{ color: 'var(--color-text)', fontFamily: 'var(--font-display)' }}>
+                  {s.text}
+                </p>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--color-muted)' }}>
+                  {s.sub}
                 </p>
               </div>
             ))}

@@ -13,7 +13,12 @@ export async function GET() {
     const result = await pool.query(
       `SELECT key, value FROM app_settings ORDER BY key`
     )
-    return NextResponse.json({ settings: result.rows })
+    // Serialize JSONB values to strings for consistent client handling
+    const settings = result.rows.map(r => ({
+      key: r.key,
+      value: JSON.stringify(r.value),
+    }))
+    return NextResponse.json({ settings })
   } catch {
     return NextResponse.json({ settings: [] })
   }
@@ -38,10 +43,19 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'key and value required' }, { status: 400 })
   }
 
+  // Parse string to proper JSON type before storing as JSONB
+  function parseValue(v: string): unknown {
+    if (v === 'true') return true
+    if (v === 'false') return false
+    const n = Number(v)
+    if (!isNaN(n) && v.trim() !== '') return n
+    return v
+  }
+
   try {
     await pool.query(
-      `UPDATE app_settings SET value = $2, updated_at = now() WHERE key = $1`,
-      [key, String(value)]
+      `UPDATE app_settings SET value = $2::jsonb, updated_at = now() WHERE key = $1`,
+      [key, JSON.stringify(parseValue(String(value)))]
     )
     return NextResponse.json({ ok: true })
   } catch {

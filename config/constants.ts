@@ -1,6 +1,6 @@
 export const APP_NAME = 'Zanimo Guide'
-export const APP_TAGLINE = "L'annuaire péi pour son animal"
-export const APP_DESCRIPTION = 'Restaurants, hébergements, balades, spots et services dog-friendly à La Réunion. Trouve les bonnes adresses pour sortir avec ton animal.'
+export const APP_TAGLINE = 'Le guide péi des lieux pensés pour les animaux'
+export const APP_DESCRIPTION = 'Restaurants, hébergements, balades, spots et services ouverts aux animaux à La Réunion. Trouve les bonnes adresses pour sortir avec ton animal.'
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://zanimo.guide'
 export const APP_EMAIL = 'contact@zanimo-guide.re'
 

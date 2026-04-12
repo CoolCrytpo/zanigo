@@ -49,7 +49,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" className={`${plusJakarta.variable} ${inter.variable}`}>
       <head>
         <meta name="theme-color" content="#2A74E6" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/brand/icon.svg" />
       </head>
       <body>{children}</body>
     </html>

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Mail, ChevronDown } from 'lucide-react'
 
 const APP_NAME = 'Zanimo Guide'
-const APP_TAGLINE = "L'annuaire péi pour son animal"
+const APP_TAGLINE = 'Le guide péi des lieux pensés pour les animaux'
 const APP_EMAIL = 'contact@zanimo-guide.re'
 const FB_URL = 'https://www.facebook.com/zanimo.guide'
 
@@ -12,7 +12,6 @@ const FOOTER_SECTIONS = [
   {
     title: 'Découvrir',
     links: [
-      { href: '/explorer',     label: 'Explorer' },
       { href: '/a-la-une',     label: 'À la une' },
       { href: '/restaurants',  label: 'Restaurants & bars' },
       { href: '/hebergements', label: 'Hébergements' },
@@ -21,28 +20,27 @@ const FOOTER_SECTIONS = [
     ],
   },
   {
-    title: 'Proposer / Corriger',
+    title: 'Agir',
     links: [
-      { href: '/contribuer',   label: 'Proposer un lieu' },
-      { href: '/signaler',     label: 'Corriger / Signaler' },
-      { href: '/signaler',     label: 'Demander le retrait' },
-      { href: '/methodologie', label: 'Notre méthode' },
+      { href: '/ajouter-lieu',      label: 'Ajouter un lieu' },
+      { href: '/proposer-service',  label: 'Proposer un service' },
+      { href: '/signaler',          label: 'Corriger / Signaler' },
+      { href: '/signaler',          label: 'Demander le retrait' },
     ],
   },
   {
-    title: 'Partenaires',
+    title: 'Espace pro',
     links: [
-      { href: '/pro',          label: 'Espace pro' },
-      { href: '/pro/sponsor',  label: 'Devenir partenaire' },
-      { href: '/partenaires',  label: 'Partenaires' },
+      { href: '/pro', label: 'Espace pro & Partenariats' },
     ],
   },
   {
     title: 'Infos',
     links: [
-      { href: '/contact', label: 'Contact' },
-      { href: '/legal',   label: 'Mentions légales' },
-      { href: '/privacy', label: 'Confidentialité' },
+      { href: '/methodologie', label: 'Notre méthode' },
+      { href: '/contact',      label: 'Contact' },
+      { href: '/legal',        label: 'Mentions légales' },
+      { href: '/privacy',      label: 'Confidentialité' },
     ],
   },
 ]
@@ -65,7 +63,7 @@ export function Footer() {
               </p>
               <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>{APP_TAGLINE}</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <a href={`mailto:${APP_EMAIL}`}
                 className="flex items-center justify-center w-9 h-9 rounded-xl transition-colors hover:text-white"
                 style={{ color: 'rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.07)' }}
@@ -76,13 +74,15 @@ export function Footer() {
                 className="flex items-center justify-center w-9 h-9 rounded-xl transition-colors hover:text-white"
                 style={{ color: 'rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.07)' }}
                 aria-label="Page Facebook">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                </svg>
               </a>
             </div>
           </div>
         </div>
 
-        {/* Links grid — desktop */}
+        {/* Desktop grid */}
         <div className="hidden md:grid md:grid-cols-4 gap-8 mb-8">
           {FOOTER_SECTIONS.map(section => (
             <div key={section.title}>
@@ -105,7 +105,7 @@ export function Footer() {
           ))}
         </div>
 
-        {/* Links accordéon — mobile */}
+        {/* Mobile accordion */}
         <div className="md:hidden flex flex-col mb-6" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
           {FOOTER_SECTIONS.map(section => (
             <div key={section.title} style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>

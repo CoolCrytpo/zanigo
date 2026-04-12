@@ -12,7 +12,7 @@ const STEPS = [
     color: '#2A74E6',
     bg: '#EEF4FF',
     title: 'On vérifie avant de publier',
-    body: 'Aucune fiche n\'est publiée automatiquement. Chaque information est vérifiée par notre équipe avant d\'apparaître sur Zanimo Guide.',
+    body: 'Aucune fiche n\'est publiée automatiquement. Chaque information est vérifiée par notre équipe avant d\'apparaître sur Zanimo Guide. Le délai moyen de vérification est de 72h.',
   },
   {
     Icon: Calendar,

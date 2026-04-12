@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { SearchX, UtensilsCrossed, BedDouble, TreePine, Stethoscope, Sparkles, Layers } from 'lucide-react'
+import { SearchX, UtensilsCrossed, BedDouble, TreePine, Stethoscope, Layers } from 'lucide-react'
 import { ListingCard } from '@/components/listings/ListingCard'
-import type { Listing, Commune, DogPolicyStatus } from '@/lib/types'
+import type { Listing, Commune, ListingType, DogPolicyStatus } from '@/lib/types'
 
 // Category filter chips — aligns with homepage categories
 const CATEGORIES = [
@@ -12,7 +12,6 @@ const CATEGORIES = [
   { key: 'hebergements', apiType: 'place',   label: 'Hébergements',     Icon: BedDouble,     categorySlug: 'hebergement' },
   { key: 'balades',      apiType: 'walk',    label: 'Balades & spots',  Icon: TreePine },
   { key: 'services',     apiType: 'service', label: 'Services',         Icon: Stethoscope },
-  { key: 'featured',     apiType: '',        label: 'À la une',         Icon: Sparkles,      featured: true },
 ] as const
 
 type CategoryKey = typeof CATEGORIES[number]['key']
@@ -45,12 +44,9 @@ export default function ExplorerPage() {
     const activeCat = CATEGORIES.find(c => c.key === cat)
     const params = new URLSearchParams()
     if (q) params.set('q', q)
-    if (activeCat?.apiType) params.set('type', activeCat.apiType)
+    if (activeCat?.apiType) params.set('type', activeCat.apiType as ListingType)
     if ('categorySlug' in (activeCat ?? {}) && (activeCat as { categorySlug?: string }).categorySlug) {
       params.set('category_slug', (activeCat as { categorySlug?: string }).categorySlug!)
-    }
-    if ('featured' in (activeCat ?? {}) && (activeCat as { featured?: boolean }).featured) {
-      params.set('is_featured', 'true')
     }
     if (dogPolicy) params.set('dog_policy', dogPolicy)
     if (communeSlug) params.set('commune_slug', communeSlug)

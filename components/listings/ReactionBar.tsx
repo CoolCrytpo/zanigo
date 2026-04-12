@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { ThumbsUp, Heart, Star, AlertCircle } from 'lucide-react'
+import { ThumbsUp, Heart, Star, Flag } from 'lucide-react'
 
 interface Props { listingId: string; compact?: boolean }
 
@@ -10,7 +10,7 @@ const REACTIONS = [
   { key: 'useful', Icon: ThumbsUp,      label: 'Utile' },
   { key: 'thanks', Icon: Heart,          label: 'Merci' },
   { key: 'love',   Icon: Star,           label: "J'adore" },
-  { key: 'oops',   Icon: AlertCircle,    label: 'Oups' },
+  { key: 'oops',   Icon: Flag,           label: 'Signaler' },
 ] as const
 
 function getAnonHash(): string {

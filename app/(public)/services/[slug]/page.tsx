@@ -9,6 +9,7 @@ import { AdSlot } from '@/components/sponsor/AdSlot'
 import { ReactionBar } from '@/features/reactions/ReactionBar'
 import { formatDate, formatPhone } from '@/lib/utils'
 import { APP_URL } from '@/config/constants'
+import { ShareButton } from '@/components/ui/ShareButton'
 
 interface PageProps { params: Promise<{ slug: string }> }
 
@@ -58,7 +59,10 @@ export default async function ServiceFichePage({ params }: PageProps) {
             <p className="text-overline mb-1.5" style={{ color: 'rgba(255,255,255,0.7)' }}>
               {listing.category?.label}{listing.commune && ` — ${listing.commune.name}`}
             </p>
-            <h1 className="text-h1 text-white" style={{ fontFamily: 'var(--font-display)' }}>{listing.title}</h1>
+            <div className="flex items-end gap-3">
+              <h1 className="text-h1 text-white flex-1" style={{ fontFamily: 'var(--font-display)' }}>{listing.title}</h1>
+              <ShareButton title={listing.title} url={`${APP_URL}/services/${listing.slug}`} />
+            </div>
           </div>
         </div>
 

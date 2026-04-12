@@ -56,6 +56,22 @@ export function StagingBulkActions({ items, basePath }: Props) {
     }
   }
 
+  async function bulkCreate() {
+    if (selected.size === 0) return
+    if (!confirm(`Créer ${selected.size} fiche(s) depuis le staging ? Elles seront créées avec le statut "à compléter".`)) return
+    const res = await fetch('/api/admin/staging/batch-create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: Array.from(selected) }),
+    })
+    const data = await res.json()
+    if (res.ok) {
+      alert(`✓ ${data.created} fiche(s) créée(s)${data.errors > 0 ? ` — ${data.errors} erreur(s)` : ''}.`)
+      setSelected(new Set())
+      startTransition(() => router.refresh())
+    }
+  }
+
   return (
     <>
       {selected.size > 0 && (
@@ -63,12 +79,20 @@ export function StagingBulkActions({ items, basePath }: Props) {
           style={{ background: '#fef3c7', border: '1px solid #fbbf24' }}>
           <span className="font-semibold text-amber-800">{selected.size} sélectionnée(s)</span>
           <button
+            onClick={bulkCreate}
+            disabled={isPending}
+            className="px-3 py-1 rounded text-xs font-semibold text-white"
+            style={{ background: '#2563eb', opacity: isPending ? 0.6 : 1 }}
+          >
+            ✓ Créer en lot
+          </button>
+          <button
             onClick={bulkReject}
             disabled={isPending}
             className="px-3 py-1 rounded text-xs font-semibold text-white"
             style={{ background: '#dc2626', opacity: isPending ? 0.6 : 1 }}
           >
-            {isPending ? 'En cours…' : '✕ Rejeter la sélection'}
+            ✕ Rejeter la sélection
           </button>
           <button
             onClick={() => setSelected(new Set())}

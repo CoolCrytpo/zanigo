@@ -10,6 +10,7 @@ import { AdSlot } from '@/components/sponsor/AdSlot'
 import { ReactionBar } from '@/features/reactions/ReactionBar'
 import { formatDate, formatDistance, formatElevation, formatDuration } from '@/lib/utils'
 import { APP_URL, TRAIL_DIFFICULTY_LABELS, TRAIL_DIFFICULTY_COLORS } from '@/config/constants'
+import { ShareButton } from '@/components/ui/ShareButton'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -90,9 +91,12 @@ export default async function BaladeFichePage({ params }: PageProps) {
             <p className="text-overline mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
               Balade{listing.commune && ` — ${listing.commune.name}`}
             </p>
-            <h1 className="text-h1 text-white" style={{ fontFamily: 'var(--font-display)' }}>
-              {listing.title}
-            </h1>
+            <div className="flex items-end gap-3">
+              <h1 className="text-h1 text-white flex-1" style={{ fontFamily: 'var(--font-display)' }}>
+                {listing.title}
+              </h1>
+              <ShareButton title={listing.title} url={`${APP_URL}/balades/${listing.slug}`} />
+            </div>
           </div>
         </div>
 

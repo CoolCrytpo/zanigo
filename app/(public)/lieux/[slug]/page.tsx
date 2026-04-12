@@ -10,6 +10,7 @@ import { AdSlot } from '@/components/sponsor/AdSlot'
 import { ReactionBar } from '@/features/reactions/ReactionBar'
 import { formatDate, formatPhone } from '@/lib/utils'
 import { APP_URL, APP_NAME } from '@/config/constants'
+import { ShareButton } from '@/components/ui/ShareButton'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -102,12 +103,15 @@ export default async function LieuFichePage({ params }: PageProps) {
               {listing.category?.icon} {listing.category?.label}
               {listing.commune && ` — ${listing.commune.name}`}
             </p>
-            <h1
-              className="text-h1 text-white"
-              style={{ fontFamily: 'var(--font-display)', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
-            >
-              {listing.title}
-            </h1>
+            <div className="flex items-end gap-3">
+              <h1
+                className="text-h1 text-white flex-1"
+                style={{ fontFamily: 'var(--font-display)', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
+              >
+                {listing.title}
+              </h1>
+              <ShareButton title={listing.title} url={`${APP_URL}/lieux/${listing.slug}`} />
+            </div>
           </div>
         </div>
 

@@ -77,8 +77,52 @@ export async function POST(req: NextRequest) {
       name: string; category?: string; commune?: string
       phone?: string; website?: string; dog_policy?: string
     }>
+    rows?: Array<Record<string, string>>
     label?: string
+    source_type?: string
     source_url?: string
+  }
+
+  // ── XLSX / Google Sheet rows (column-mapped) ──────────────────────────────
+  if (body.rows && Array.isArray(body.rows)) {
+    const { rows, label, source_type: srcType } = body
+    const batch = await createBatch((srcType ?? 'manual_csv') as 'csv', label ?? 'XLSX import', user.id)
+    let imported = 0; let rejected = 0
+
+    for (const row of rows) {
+      const name = row.name?.trim()
+      if (!name) { rejected++; continue }
+      try {
+        const sourceId = await createSource(
+          batch.id, 'xlsx', 'xlsx', 'detail', 'medium', 'compatible', 1
+        )
+        await insertStagingItem({
+          name,
+          dog_policy: (['yes', 'no', 'conditional', 'unknown'].includes(row.dog_policy ?? '')
+            ? row.dog_policy as 'yes' | 'no' | 'conditional' | 'unknown'
+            : 'unknown'),
+          confidence_score: 30,
+          source_url: 'xlsx',
+          source_domain: 'xlsx',
+          source_page_type: 'detail',
+          commune_name: row.commune || undefined,
+          address: row.address || undefined,
+          phone: row.phone || undefined,
+          email: row.email || undefined,
+          website: row.website || undefined,
+          category: row.category || undefined,
+          dog_policy_detail: row.description || undefined,
+        }, batch.id, sourceId, user.id)
+        imported++
+      } catch { rejected++ }
+    }
+
+    await updateBatchStatus(batch.id, imported > 0 ? 'imported_to_staging' : 'failed', {
+      total_sources: 1, total_extracted: rows.length,
+      total_imported: imported, total_rejected: rejected, total_duplicates: 0,
+    })
+
+    return NextResponse.json({ batch_id: batch.id, imported, rejected })
   }
 
   // Manual items (quick entry form)

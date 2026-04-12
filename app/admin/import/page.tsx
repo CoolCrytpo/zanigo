@@ -39,6 +39,11 @@ export default async function ImportDashboardPage() {
           <h2 className="font-semibold mb-1" style={{ color: 'var(--color-basalte)' }}>Importer un CSV</h2>
           <p className="text-sm text-gray-500">Importer un fichier CSV complété manuellement</p>
         </Link>
+        <Link href="/admin/import/xlsx" className="card p-5 hover:shadow-md transition-shadow">
+          <div className="text-2xl mb-2">📊</div>
+          <h2 className="font-semibold mb-1" style={{ color: 'var(--color-basalte)' }}>XLS / Google Sheet</h2>
+          <p className="text-sm text-gray-500">Importer un fichier Excel ou un Google Sheet public avec mapping de colonnes</p>
+        </Link>
         <Link href="/admin/listings/new" className="card p-5 hover:shadow-md transition-shadow">
           <div className="text-2xl mb-2">✏️</div>
           <h2 className="font-semibold mb-1" style={{ color: 'var(--color-basalte)' }}>Fiche manuelle</h2>

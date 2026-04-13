@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, UtensilsCrossed, TreePine, Stethoscope, BedDouble } from 'lucide-react'

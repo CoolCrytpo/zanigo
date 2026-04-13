@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getListingBySlug, getReactionCounts } from '@/lib/db/queries'
+import { getListingBySlug, getReactionCounts, getApprovedComments, type ApprovedComment } from '@/lib/db/queries'
 import { DogPolicyBadge } from '@/components/ui/DogPolicyBadge'
 import { ListingActions } from '@/components/listings/ListingActions'
 import { TrustBadge } from '@/components/ui/TrustBadge'
@@ -41,6 +41,7 @@ export default async function LieuFichePage({ params }: PageProps) {
 
   let listing = null
   let reactionCounts = { useful: 0, thanks: 0, love: 0, oops: 0 }
+  let approvedComments: ApprovedComment[] = []
 
   try {
     ;[listing, reactionCounts] = await Promise.all([
@@ -52,6 +53,10 @@ export default async function LieuFichePage({ params }: PageProps) {
   }
 
   if (!listing) notFound()
+
+  try {
+    if (listing) approvedComments = await getApprovedComments(listing.id)
+  } catch {}
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -174,9 +179,36 @@ export default async function LieuFichePage({ params }: PageProps) {
                 <ReactionBar listingId={listing.id} initialCounts={reactionCounts} />
               </div>
 
-              {/* Comments */}
+              {/* Comments section */}
               <div className="card p-5">
-                <h2 className="text-overline mb-3">Partage ton expérience</h2>
+                <h2 className="text-overline mb-4">Partage ton expérience</h2>
+
+                {/* Approved comments list */}
+                {approvedComments.length > 0 && (
+                  <div className="flex flex-col gap-3 mb-5">
+                    {approvedComments.map(comment => (
+                      <div
+                        key={comment.id}
+                        className="p-3 rounded-xl"
+                        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <span className="text-xs font-semibold" style={{ color: 'var(--color-text)' }}>
+                            {comment.pseudo ?? 'Anonyme'}
+                          </span>
+                          <span className="text-xs" style={{ color: 'var(--color-muted)' }}>
+                            {new Date(comment.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          </span>
+                        </div>
+                        <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                          {comment.content}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Comment form */}
                 <CommentForm listingId={listing.id} />
               </div>
 

@@ -495,3 +495,24 @@ export async function updateContributionStatus(
     [status, reviewedBy, id]
   )
 }
+
+// ─────────────────────────────────────────────
+// Comments
+// ─────────────────────────────────────────────
+
+export interface ApprovedComment {
+  id: string
+  pseudo: string | null
+  content: string
+  created_at: string
+}
+
+export async function getApprovedComments(listingId: string): Promise<ApprovedComment[]> {
+  try {
+    const result = await pool.query(
+      `SELECT id, pseudo, content, created_at FROM listing_comments WHERE listing_id = $1 AND status = 'approved' ORDER BY created_at DESC LIMIT 20`,
+      [listingId]
+    )
+    return result.rows
+  } catch { return [] }
+}

@@ -7,11 +7,11 @@ import type { Listing, Commune, ListingType, DogPolicyStatus } from '@/lib/types
 
 // Category filter chips — aligns with homepage categories
 const CATEGORIES = [
-  { key: '',             apiType: '',        label: 'Tout',             Icon: Layers },
-  { key: 'restaurants',  apiType: 'place',   label: 'Restaurants',      Icon: UtensilsCrossed },
-  { key: 'hebergements', apiType: 'place',   label: 'Hébergements',     Icon: BedDouble,     categorySlug: 'hebergement' },
-  { key: 'balades',      apiType: 'walk',    label: 'Balades & spots',  Icon: TreePine },
-  { key: 'services',     apiType: 'service', label: 'Services',         Icon: Stethoscope },
+  { key: '',             apiType: '',        label: 'Tout',             Icon: Layers,          color: '#1A2030', bg: '#f1f5f9' },
+  { key: 'restaurants',  apiType: 'place',   label: 'Restaurants',      Icon: UtensilsCrossed, color: '#FF6B57', bg: '#FFF3F1' },
+  { key: 'hebergements', apiType: 'place',   label: 'Hébergements',     Icon: BedDouble,       color: '#2A74E6', bg: '#EEF4FF', categorySlug: 'hebergement' },
+  { key: 'balades',      apiType: 'walk',    label: 'Balades & spots',  Icon: TreePine,        color: '#1FA97E', bg: '#EDFBF5' },
+  { key: 'services',     apiType: 'service', label: 'Services',         Icon: Stethoscope,     color: '#8B5CF6', bg: '#F3EEFF' },
 ] as const
 
 type CategoryKey = typeof CATEGORIES[number]['key']
@@ -106,9 +106,9 @@ export default function ExplorerPage() {
                   onClick={() => { setCat(c.key); setPage(1) }}
                   className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all"
                   style={{
-                    borderColor: active ? 'var(--color-green)' : 'var(--color-border)',
-                    background: active ? 'var(--color-green-light)' : '#fff',
-                    color: active ? 'var(--color-green)' : 'var(--color-muted)',
+                    borderColor: active ? c.color : 'var(--color-border)',
+                    background: active ? c.bg : '#fff',
+                    color: active ? c.color : 'var(--color-muted)',
                   }}
                 >
                   <c.Icon size={13} strokeWidth={2} />

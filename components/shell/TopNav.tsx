@@ -126,25 +126,38 @@ export function TopNav() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="lg:hidden border-t" style={{ borderColor: 'var(--color-border)', background: 'var(--color-canvas)' }}>
-          <nav className="container py-3 flex flex-col gap-2">
-            {/* VIP À la une */}
+          <nav className="container py-4 grid grid-cols-2 gap-2">
+            {/* À la une */}
             <Link href="/a-la-une"
-              className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold"
+              className="flex items-center justify-center gap-2 px-3 py-3 rounded-2xl text-sm font-bold"
               style={{ background: '#FFF8E6', color: '#92400e' }}>
-              <Sparkles size={15} style={{ color: '#F4B73F' }} />
-              À la une — Sélection
+              <Sparkles size={14} style={{ color: '#F4B73F' }} />
+              À la une
             </Link>
 
-            <div className="h-px my-1" style={{ background: 'var(--color-border)' }} />
+            {/* Explorer */}
+            <Link href="/explorer"
+              className="flex items-center justify-center gap-2 px-3 py-3 rounded-2xl text-sm font-semibold"
+              style={{ background: '#1A2030', color: '#fff' }}>
+              <Compass size={14} />
+              Explorer
+            </Link>
 
-            {ACTION_LINKS.map(({ href, label, Icon, style }) => (
-              <Link key={href} href={href}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-white"
-                style={{ background: style === 'primary' ? '#2A74E6' : style === 'secondary' ? '#1FA97E' : '#1A2030' }}>
-                <Icon size={15} />
-                {label}
-              </Link>
-            ))}
+            {/* Ajouter lieu */}
+            <Link href="/ajouter-lieu"
+              className="flex items-center justify-center gap-2 px-3 py-3 rounded-2xl text-sm font-semibold text-white"
+              style={{ background: '#2A74E6' }}>
+              <MapPin size={14} />
+              Ajouter un lieu
+            </Link>
+
+            {/* Proposer service */}
+            <Link href="/proposer-service"
+              className="flex items-center justify-center gap-2 px-3 py-3 rounded-2xl text-sm font-semibold text-white"
+              style={{ background: '#1FA97E' }}>
+              <Stethoscope size={14} />
+              Proposer un service
+            </Link>
           </nav>
         </div>
       )}

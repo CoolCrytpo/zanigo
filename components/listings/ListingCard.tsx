@@ -97,7 +97,7 @@ export function ListingCard({ listing }: Props) {
     >
       <Link href={href} className="flex flex-col flex-1 group" style={{ textDecoration: 'none', color: 'inherit' }}>
         {/* Square image */}
-        <div className="relative overflow-hidden shrink-0" style={{ aspectRatio: '1/1', background: fallbackBg }}>
+        <div className="relative overflow-hidden shrink-0" style={{ aspectRatio: '3/2', background: fallbackBg }}>
           {listing.cover_url ? (
             <Image
               src={listing.cover_url}

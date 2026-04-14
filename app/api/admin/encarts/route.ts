@@ -32,12 +32,14 @@ export async function POST(req: NextRequest) {
     bg: bg || null,
   })
 
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now()
+
   try {
     const result = await pool.query(
-      `INSERT INTO campaigns (title, type, asset_url, cta_url, target, is_active, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, true, now(), now())
+      `INSERT INTO campaigns (slug, title, type, asset_url, cta_url, target, is_active, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, true, now(), now())
        RETURNING id`,
-      [title, campaignType, asset_url || null, cta_url || null, target]
+      [slug, title, campaignType, asset_url || null, cta_url || null, target]
     )
 
     const id = result.rows[0].id

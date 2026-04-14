@@ -41,6 +41,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'title required' }, { status: 400 })
   }
 
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now()
+
   try {
     const target = JSON.stringify({
       event_date: event_date || null,
@@ -49,10 +51,10 @@ export async function POST(req: NextRequest) {
     })
 
     const result = await pool.query(
-      `INSERT INTO campaigns (title, advertiser, type, asset_url, cta_url, target, is_active, created_at, updated_at)
-       VALUES ($1, $2, 'event', $3, $4, $5, true, now(), now())
+      `INSERT INTO campaigns (slug, title, advertiser, type, asset_url, cta_url, target, is_active, created_at, updated_at)
+       VALUES ($1, $2, $3, 'event', $4, $5, $6, true, now(), now())
        RETURNING id`,
-      [title, advertiser || 'Zanimo Guide', asset_url || null, cta_url || null, target]
+      [slug, title, advertiser || 'Zanimo Guide', asset_url || null, cta_url || null, target]
     )
 
     const id = result.rows[0].id

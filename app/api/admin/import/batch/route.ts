@@ -7,6 +7,8 @@ import {
   createBatch, updateBatchStatus, createSource, insertStagingItem, getBatches,
 } from '@/lib/ingestion/queries'
 
+export const maxDuration = 60
+
 // GET — list batches
 export async function GET() {
   const user = await getSession()

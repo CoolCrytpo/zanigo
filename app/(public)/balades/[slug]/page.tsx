@@ -13,6 +13,8 @@ import { APP_URL, TRAIL_DIFFICULTY_LABELS, TRAIL_DIFFICULTY_COLORS } from '@/con
 import { ShareButton } from '@/components/ui/ShareButton'
 import { CommentForm } from '@/components/listings/CommentForm'
 
+export const dynamic = 'force-dynamic'
+
 interface PageProps {
   params: Promise<{ slug: string }>
 }

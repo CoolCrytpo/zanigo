@@ -1,11 +1,78 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth/session'
 import { analyzeUrl } from '@/lib/ingestion/extractor'
-import { normalizeItem } from '@/lib/ingestion/normalizer'
+import { normalizeItem, buildDedupeKey } from '@/lib/ingestion/normalizer'
 import { parseCsv, mapCsvRowToStaging } from '@/lib/ingestion/csv'
+import pool from '@/lib/db/client'
 import {
   createBatch, updateBatchStatus, createSource, insertStagingItem, getBatches,
 } from '@/lib/ingestion/queries'
+
+// Bulk insert staging items without per-row duplicate detection (fast path for CSV/XLSX)
+async function bulkInsertStaging(
+  items: Array<{
+    name: string; category?: string; commune_name?: string; address?: string
+    phone?: string; email?: string; website?: string; dog_policy?: string
+    dog_policy_detail?: string; confidence_score?: number; source_url?: string; source_domain?: string
+    proof_excerpt?: string
+  }>,
+  batchId: string,
+  sourceId: string,
+  userId: string | null,
+): Promise<{ imported: number; rejected: number }> {
+  if (items.length === 0) return { imported: 0, rejected: 0 }
+  const CHUNK = 50
+  let imported = 0; let rejected = 0
+  const COLS = 16 // params per row
+
+  for (let i = 0; i < items.length; i += CHUNK) {
+    const chunk = items.slice(i, i + CHUNK)
+    const params: unknown[] = []
+    const placeholders = chunk.map((item, j) => {
+      const b = j * COLS
+      const normalized = normalizeItem({
+        name: item.name,
+        dog_policy: (item.dog_policy ?? 'unknown') as 'yes' | 'no' | 'conditional' | 'unknown',
+        confidence_score: item.confidence_score ?? 30,
+        source_url: item.source_url ?? 'csv',
+        source_domain: item.source_domain ?? 'csv',
+        source_page_type: 'detail',
+        commune_name: item.commune_name,
+        address: item.address,
+        phone: item.phone,
+        email: item.email,
+        website: item.website,
+        category: item.category,
+        dog_policy_detail: item.dog_policy_detail,
+      })
+      params.push(
+        batchId, sourceId,
+        normalized.name, normalized.category ?? null, normalized.commune_name ?? null,
+        normalized.address ?? null, normalized.phone ?? null, normalized.email ?? null,
+        normalized.website ?? null, normalized.dog_policy,
+        item.dog_policy_detail ?? null, item.proof_excerpt ?? null,
+        normalized.confidence_score,
+        'to_review',
+        userId,
+      )
+      params.push(buildDedupeKey(normalized.name, normalized.commune_name ?? ''))
+      return `($${b+1},$${b+2},$${b+3},$${b+4},$${b+5},$${b+6},$${b+7},$${b+8},$${b+9},$${b+10},$${b+11},$${b+12},$${b+13},$${b+14},$${b+15},$${b+16})`
+    }).join(',')
+
+    try {
+      await pool.query(
+        `INSERT INTO staging_listings
+           (batch_id, source_id, name, category, commune_name, address, phone, email, website,
+            dog_policy, dog_policy_detail, proof_excerpt, confidence_score, status, created_by, dedupe_key)
+         VALUES ${placeholders}`,
+        params
+      )
+      imported += chunk.length
+    } catch { rejected += chunk.length }
+  }
+
+  return { imported, rejected }
+}
 
 export const maxDuration = 60
 
@@ -36,40 +103,28 @@ export async function POST(req: NextRequest) {
     const { rows, errors } = parseCsv(content)
 
     const batch = await createBatch('csv', label, user.id)
+    const sourceId = await createSource(batch.id, 'csv', 'csv', 'detail', 'medium', 'compatible', rows.length)
 
-    let imported = 0; let rejected = 0
-    for (const row of rows) {
-      const mapped = mapCsvRowToStaging(row)
-      if (!mapped.name) { rejected++; continue }
-      try {
-        const item = {
-          name: mapped.name!,
-          dog_policy: (mapped.dog_policy ?? 'unknown') as 'yes' | 'no' | 'conditional' | 'unknown',
-          confidence_score: mapped.confidence_score ?? 30,
-          source_url: mapped.source_url ?? '',
-          source_domain: mapped.source_domain ?? '',
-          source_page_type: 'unknown' as const,
-          commune_name: mapped.commune_name ?? undefined,
-          address: mapped.address ?? undefined,
-          phone: mapped.phone ?? undefined,
-          email: mapped.email ?? undefined,
-          website: mapped.website ?? undefined,
-          category: mapped.category ?? undefined,
-          dog_policy_detail: mapped.dog_policy_detail ?? undefined,
-          proof_excerpt: mapped.proof_excerpt ?? undefined,
-        }
-        const normalized = normalizeItem(item)
-        const sourceId = await createSource(batch.id, mapped.source_url ?? 'csv', mapped.source_domain ?? 'csv', 'detail', 'medium', 'compatible', 1)
-        await insertStagingItem(normalized, batch.id, sourceId, user.id)
-        imported++
-      } catch { rejected++ }
-    }
+    const validRows = rows.map(r => mapCsvRowToStaging(r)).filter(r => !!r.name)
+    const skipped = rows.length - validRows.length
+
+    const { imported, rejected } = await bulkInsertStaging(
+      validRows.map(r => ({
+        name: r.name!, category: r.category ?? undefined, commune_name: r.commune_name ?? undefined,
+        address: r.address ?? undefined, phone: r.phone ?? undefined, email: r.email ?? undefined,
+        website: r.website ?? undefined, dog_policy: r.dog_policy ?? 'unknown',
+        dog_policy_detail: r.dog_policy_detail ?? undefined, confidence_score: r.confidence_score ?? 30,
+        source_url: r.source_url ?? 'csv', source_domain: r.source_domain ?? 'csv',
+        proof_excerpt: r.proof_excerpt ?? undefined,
+      })),
+      batch.id, sourceId, user.id
+    )
 
     await updateBatchStatus(batch.id, imported > 0 ? 'imported_to_staging' : 'failed', {
-      total_sources: 1, total_extracted: rows.length, total_imported: imported, total_rejected: rejected,
+      total_sources: 1, total_extracted: rows.length, total_imported: imported, total_rejected: rejected + skipped,
     })
 
-    return NextResponse.json({ batch_id: batch.id, imported, rejected, parse_errors: errors })
+    return NextResponse.json({ batch_id: batch.id, imported, rejected: rejected + skipped, parse_errors: errors })
   }
 
   // ── URL or Manual import ──────────────────────────────
@@ -89,42 +144,35 @@ export async function POST(req: NextRequest) {
   if (body.rows && Array.isArray(body.rows)) {
     const { rows, label, source_type: srcType } = body
     const batch = await createBatch((srcType ?? 'manual_csv') as 'csv', label ?? 'XLSX import', user.id)
-    let imported = 0; let rejected = 0
+    const sourceId = await createSource(batch.id, 'xlsx', 'xlsx', 'detail', 'medium', 'compatible', rows.length)
 
-    for (const row of rows) {
-      const name = row.name?.trim()
-      if (!name) { rejected++; continue }
-      try {
-        const sourceId = await createSource(
-          batch.id, 'xlsx', 'xlsx', 'detail', 'medium', 'compatible', 1
-        )
-        await insertStagingItem({
-          name,
-          dog_policy: (['yes', 'no', 'conditional', 'unknown'].includes(row.dog_policy ?? '')
-            ? row.dog_policy as 'yes' | 'no' | 'conditional' | 'unknown'
-            : 'unknown'),
-          confidence_score: 30,
-          source_url: 'xlsx',
-          source_domain: 'xlsx',
-          source_page_type: 'detail',
-          commune_name: row.commune || undefined,
-          address: row.address || undefined,
-          phone: row.phone || undefined,
-          email: row.email || undefined,
-          website: row.website || undefined,
-          category: row.category || undefined,
-          dog_policy_detail: row.description || undefined,
-        }, batch.id, sourceId, user.id)
-        imported++
-      } catch { rejected++ }
-    }
+    const validRows = rows.filter(r => !!r.name?.trim())
+    const skipped = rows.length - validRows.length
+
+    const { imported, rejected } = await bulkInsertStaging(
+      validRows.map(r => ({
+        name: r.name.trim(),
+        category: r.category || undefined,
+        commune_name: r.commune || undefined,
+        address: r.address || undefined,
+        phone: r.phone || undefined,
+        email: r.email || undefined,
+        website: r.website || undefined,
+        dog_policy: ['yes', 'no', 'conditional', 'unknown'].includes(r.dog_policy ?? '') ? r.dog_policy : 'unknown',
+        dog_policy_detail: r.description || undefined,
+        confidence_score: 30,
+        source_url: 'xlsx',
+        source_domain: 'xlsx',
+      })),
+      batch.id, sourceId, user.id
+    )
 
     await updateBatchStatus(batch.id, imported > 0 ? 'imported_to_staging' : 'failed', {
       total_sources: 1, total_extracted: rows.length,
-      total_imported: imported, total_rejected: rejected, total_duplicates: 0,
+      total_imported: imported, total_rejected: rejected + skipped, total_duplicates: 0,
     })
 
-    return NextResponse.json({ batch_id: batch.id, imported, rejected })
+    return NextResponse.json({ batch_id: batch.id, imported, rejected: rejected + skipped })
   }
 
   // Manual items (quick entry form)
@@ -135,37 +183,32 @@ export async function POST(req: NextRequest) {
       : 'manual'
 
     const batch = await createBatch('manual', label ?? 'Saisie manuelle', user.id)
-    let imported = 0; let rejected = 0
+    const sourceId = await createSource(batch.id, source_url ?? 'manual', sourceDomain, 'detail', 'medium', 'compatible', items.length)
 
-    for (const item of items) {
-      if (!item.name?.trim()) { rejected++; continue }
-      try {
-        const sourceId = await createSource(
-          batch.id, source_url ?? 'manual', sourceDomain,
-          'detail', 'medium', 'compatible', 1
-        )
-        await insertStagingItem({
-          name: item.name.trim(),
-          dog_policy: (item.dog_policy ?? 'unknown') as 'yes' | 'no' | 'conditional' | 'unknown',
-          confidence_score: 35,
-          source_url: source_url ?? 'manual',
-          source_domain: sourceDomain,
-          source_page_type: 'detail',
-          commune_name: item.commune || undefined,
-          phone: item.phone || undefined,
-          website: item.website || undefined,
-          category: item.category || undefined,
-        }, batch.id, sourceId, user.id)
-        imported++
-      } catch { rejected++ }
-    }
+    const validItems = items.filter(i => !!i.name?.trim())
+    const skipped = items.length - validItems.length
+
+    const { imported, rejected } = await bulkInsertStaging(
+      validItems.map(i => ({
+        name: i.name.trim(),
+        category: i.category || undefined,
+        commune_name: i.commune || undefined,
+        phone: i.phone || undefined,
+        website: i.website || undefined,
+        dog_policy: i.dog_policy ?? 'unknown',
+        confidence_score: 35,
+        source_url: source_url ?? 'manual',
+        source_domain: sourceDomain,
+      })),
+      batch.id, sourceId, user.id
+    )
 
     await updateBatchStatus(batch.id, imported > 0 ? 'imported_to_staging' : 'failed', {
       total_sources: 1, total_extracted: items.length,
-      total_imported: imported, total_rejected: rejected, total_duplicates: 0,
+      total_imported: imported, total_rejected: rejected + skipped, total_duplicates: 0,
     })
 
-    return NextResponse.json({ batch_id: batch.id, imported, rejected })
+    return NextResponse.json({ batch_id: batch.id, imported, rejected: rejected + skipped })
   }
 
   // URL import

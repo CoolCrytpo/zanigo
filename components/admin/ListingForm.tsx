@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Listing, ListingCategory, Commune } from '@/lib/types'
 import { slugify } from '@/lib/utils'
@@ -87,6 +87,69 @@ export function ListingForm({ listing, categories, communes }: Props) {
 
   const [saving, setSaving]   = useState(false)
   const [error, setError]     = useState<string | null>(null)
+
+  // Cover photo
+  const [coverUrl, setCoverUrl]       = useState<string | null>(listing?.cover_url ?? null)
+  const [urlInput, setUrlInput]       = useState('')
+  const [photoSaving, setPhotoSaving] = useState(false)
+  const [photoError, setPhotoError]   = useState<string | null>(null)
+  const [uploading, setUploading]     = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleSaveUrl() {
+    const url = urlInput.trim()
+    if (!url || !listing?.id) return
+    setPhotoSaving(true); setPhotoError(null)
+    try {
+      const res = await fetch(`/api/admin/listings/${listing.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cover_url: url }),
+      })
+      if (!res.ok) throw new Error('Erreur serveur')
+      setCoverUrl(url); setUrlInput('')
+    } catch (e) {
+      setPhotoError(e instanceof Error ? e.message : 'Erreur')
+    } finally { setPhotoSaving(false) }
+  }
+
+  async function handleRemoveCover() {
+    if (!listing?.id) return
+    setPhotoSaving(true); setPhotoError(null)
+    try {
+      await fetch(`/api/admin/listings/${listing.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cover_url: null }),
+      })
+      setCoverUrl(null)
+    } finally { setPhotoSaving(false) }
+  }
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !listing?.id) return
+    setUploading(true); setPhotoError(null)
+    const fd = new FormData(); fd.append('file', file)
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      const json = await res.json() as { url?: string; error?: string }
+      if (!res.ok) throw new Error(json.error ?? 'Erreur upload')
+      const uploadedUrl = json.url!
+      const patchRes = await fetch(`/api/admin/listings/${listing.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cover_url: uploadedUrl }),
+      })
+      if (!patchRes.ok) throw new Error('Erreur sauvegarde')
+      setCoverUrl(uploadedUrl)
+    } catch (e) {
+      setPhotoError(e instanceof Error ? e.message : 'Erreur upload')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
 
   const filteredCategories = categories.filter((c) => c.listing_type === type)
 
@@ -460,6 +523,65 @@ export function ListingForm({ listing, categories, communes }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Photo de couverture (edit only) */}
+      {!isNew && (
+        <div className={sectionCls}>
+          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Photo de couverture</h2>
+          {photoError && (
+            <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{photoError}</div>
+          )}
+          <div className="flex items-start gap-4">
+            {coverUrl ? (
+              <div className="relative w-36 h-24 rounded-xl overflow-hidden border border-gray-200 shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={coverUrl} alt="Couverture" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={handleRemoveCover}
+                  disabled={photoSaving}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center hover:bg-red-600 disabled:opacity-50"
+                >✕</button>
+              </div>
+            ) : (
+              <div className="w-36 h-24 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400 text-xs text-center shrink-0">
+                Aucune photo
+              </div>
+            )}
+            <div className="flex-1 flex flex-col gap-3">
+              <div>
+                <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleUpload} />
+                <button
+                  type="button"
+                  disabled={uploading}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 disabled:opacity-50"
+                >
+                  {uploading ? 'Envoi…' : coverUrl ? 'Changer (fichier)' : 'Uploader'}
+                </button>
+                <span className="text-xs text-gray-400 ml-2">JPG / PNG / WebP · max 5 Mo</span>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  placeholder="https://exemple.com/photo.jpg"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  className={`${inputCls} flex-1`}
+                />
+                <button
+                  type="button"
+                  disabled={photoSaving || !urlInput.trim()}
+                  onClick={handleSaveUrl}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 disabled:opacity-50 whitespace-nowrap"
+                >
+                  {photoSaving ? '…' : 'Utiliser l\'URL'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Submit bottom */}
       <div className="flex justify-end gap-2 pb-8">

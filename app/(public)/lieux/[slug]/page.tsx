@@ -13,6 +13,8 @@ import { APP_URL, APP_NAME } from '@/config/constants'
 import { ShareButton } from '@/components/ui/ShareButton'
 import { CommentForm } from '@/components/listings/CommentForm'
 
+export const dynamic = 'force-dynamic'
+
 interface PageProps {
   params: Promise<{ slug: string }>
 }

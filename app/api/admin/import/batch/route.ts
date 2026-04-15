@@ -5,7 +5,7 @@ import { normalizeItem, buildDedupeKey } from '@/lib/ingestion/normalizer'
 import { parseCsv, mapCsvRowToStaging } from '@/lib/ingestion/csv'
 import pool from '@/lib/db/client'
 import {
-  createBatch, updateBatchStatus, createSource, insertStagingItem, getBatches,
+  createBatch, updateBatchStatus, insertStagingItem, getBatches,
 } from '@/lib/ingestion/queries'
 
 // Bulk insert staging items without per-row duplicate detection (fast path for CSV/XLSX)
@@ -19,7 +19,6 @@ async function bulkInsertStaging(
     proof_excerpt?: string
   }>,
   batchId: string,
-  sourceId: string,
   userId: string | null,
 ): Promise<{ imported: number; rejected: number }> {
   if (items.length === 0) return { imported: 0, rejected: 0 }
@@ -48,7 +47,7 @@ async function bulkInsertStaging(
         dog_policy_detail: item.dog_policy_detail,
       })
       params.push(
-        batchId, sourceId,
+        batchId, null,
         normalized.name, normalized.category ?? null, normalized.commune_name ?? null,
         normalized.address ?? null, normalized.phone ?? null, normalized.email ?? null,
         normalized.website ?? null,
@@ -117,7 +116,6 @@ export async function POST(req: NextRequest) {
       const { rows, errors } = parseCsv(content)
 
       const batch = await createBatch('csv', label, user.id)
-      const sourceId = await createSource(batch.id, 'csv', 'csv', 'detail', 'medium', 'compatible', rows.length)
 
       const mapped = rows.map(r => mapCsvRowToStaging(r))
       const validRows = mapped.filter(r => !!r.name)
@@ -143,7 +141,7 @@ export async function POST(req: NextRequest) {
           source_domain: r.source_domain || 'csv',
           proof_excerpt: r.proof_excerpt || undefined,
         })),
-        batch.id, sourceId, user.id
+        batch.id, user.id
       )
 
       await updateBatchStatus(batch.id, imported > 0 ? 'imported_to_staging' : 'failed', {
@@ -172,7 +170,6 @@ export async function POST(req: NextRequest) {
     if (body.rows && Array.isArray(body.rows)) {
       const { rows, label } = body
       const batch = await createBatch('csv', label ?? 'XLSX import', user.id)
-      const sourceId = await createSource(batch.id, 'xlsx', 'xlsx', 'detail', 'medium', 'compatible', rows.length)
 
       const validRows = rows.filter(r => !!r.name?.trim())
       const skipped = rows.length - validRows.length
@@ -192,7 +189,7 @@ export async function POST(req: NextRequest) {
           source_url: 'xlsx',
           source_domain: 'xlsx',
         })),
-        batch.id, sourceId, user.id
+        batch.id, user.id
       )
 
       await updateBatchStatus(batch.id, imported > 0 ? 'imported_to_staging' : 'failed', {
@@ -211,7 +208,6 @@ export async function POST(req: NextRequest) {
         : 'manual'
 
       const batch = await createBatch('manual', label ?? 'Saisie manuelle', user.id)
-      const sourceId = await createSource(batch.id, source_url ?? 'manual', sourceDomain, 'detail', 'medium', 'compatible', items.length)
 
       const validItems = items.filter(i => !!i.name?.trim())
       const skipped = items.length - validItems.length
@@ -228,7 +224,7 @@ export async function POST(req: NextRequest) {
           source_url: source_url ?? 'manual',
           source_domain: sourceDomain,
         })),
-        batch.id, sourceId, user.id
+        batch.id, user.id
       )
 
       await updateBatchStatus(batch.id, imported > 0 ? 'imported_to_staging' : 'failed', {
@@ -251,14 +247,9 @@ export async function POST(req: NextRequest) {
     for (const url of urls) {
       try {
         const result = await analyzeUrl(url)
-        const sourceId = await createSource(
-          batch.id, url, result.domain, result.page_type,
-          result.compatibility, result.status, result.items_found,
-          result.error_message, result.raw_excerpt
-        )
         totalExtracted += result.items.length
         for (const item of result.items) {
-          try { await insertStagingItem(item, batch.id, sourceId, user.id); totalImported++ }
+          try { await insertStagingItem(item, batch.id, null, user.id); totalImported++ }
           catch { totalRejected++ }
         }
       } catch { totalRejected++ }

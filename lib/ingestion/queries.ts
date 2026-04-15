@@ -54,34 +54,12 @@ export async function getBatch(id: string): Promise<ImportBatch | null> {
   return r.rows[0] ?? null
 }
 
-// ── Sources ───────────────────────────────────
-
-export async function createSource(
-  batchId: string,
-  url: string,
-  domain: string,
-  pageType: string,
-  compatibility: string,
-  status: string,
-  itemsFound: number,
-  error?: string,
-  rawExcerpt?: string,
-): Promise<string> {
-  const r = await pool.query(
-    `INSERT INTO import_sources
-       (batch_id, url, domain, page_type, extractor_used, compatibility, status, items_found, error_message, raw_excerpt)
-     VALUES ($1,$2,$3,$4,'generic',$5,$6,$7,$8,$9) RETURNING id`,
-    [batchId, url, domain, pageType, compatibility, status, itemsFound, error ?? null, rawExcerpt ?? null]
-  )
-  return r.rows[0].id
-}
-
 // ── Staging ───────────────────────────────────
 
 export async function insertStagingItem(
   item: ExtractedItem,
   batchId: string,
-  sourceId: string,
+  sourceId: string | null,
   userId: string | null,
 ): Promise<string> {
   const normalized = normalizeItem(item)
@@ -102,7 +80,7 @@ export async function insertStagingItem(
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)
      RETURNING id`,
     [
-      batchId, sourceId, normalized.name, normalized.category ?? null, normalized.commune_name ?? null,
+      batchId, sourceId ?? null, normalized.name, normalized.category ?? null, normalized.commune_name ?? null,
       normalized.address ?? null, normalized.phone ?? null, normalized.email ?? null, normalized.website ?? null,
       normalized.dog_policy, normalized.dog_policy_detail ?? null,
       normalized.inside_allowed ?? 'unknown', normalized.terrace_only ?? 'unknown',

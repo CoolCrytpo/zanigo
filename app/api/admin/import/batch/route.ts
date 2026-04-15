@@ -23,7 +23,7 @@ async function bulkInsertStaging(
   if (items.length === 0) return { imported: 0, rejected: 0 }
   const CHUNK = 50
   let imported = 0; let rejected = 0
-  const COLS = 16 // params per row
+  const COLS = 23 // params per row
 
   for (let i = 0; i < items.length; i += CHUNK) {
     const chunk = items.slice(i, i + CHUNK)
@@ -49,21 +49,32 @@ async function bulkInsertStaging(
         batchId, sourceId,
         normalized.name, normalized.category ?? null, normalized.commune_name ?? null,
         normalized.address ?? null, normalized.phone ?? null, normalized.email ?? null,
-        normalized.website ?? null, normalized.dog_policy,
-        item.dog_policy_detail ?? null, item.proof_excerpt ?? null,
+        normalized.website ?? null,
+        normalized.dog_policy,
+        item.dog_policy_detail ?? null,
+        normalized.inside_allowed ?? 'unknown',
+        normalized.terrace_only ?? 'unknown',
+        normalized.leash_required ?? 'unknown',
+        normalized.extra_fee ?? 'unknown',
+        item.proof_excerpt ?? null,
         normalized.confidence_score,
+        normalized.source_url,
+        normalized.source_domain,
+        normalized.source_page_type,
         'to_review',
         userId,
+        buildDedupeKey(normalized.name, normalized.commune_name ?? ''),
       )
-      params.push(buildDedupeKey(normalized.name, normalized.commune_name ?? ''))
-      return `($${b+1},$${b+2},$${b+3},$${b+4},$${b+5},$${b+6},$${b+7},$${b+8},$${b+9},$${b+10},$${b+11},$${b+12},$${b+13},$${b+14},$${b+15},$${b+16})`
+      return `($${b+1},$${b+2},$${b+3},$${b+4},$${b+5},$${b+6},$${b+7},$${b+8},$${b+9},$${b+10},$${b+11},$${b+12},$${b+13},$${b+14},$${b+15},$${b+16},$${b+17},$${b+18},$${b+19},$${b+20},$${b+21},$${b+22},$${b+23})`
     }).join(',')
 
     try {
       await pool.query(
         `INSERT INTO staging_listings
            (batch_id, source_id, name, category, commune_name, address, phone, email, website,
-            dog_policy, dog_policy_detail, proof_excerpt, confidence_score, status, created_by, dedupe_key)
+            dog_policy, dog_policy_detail, inside_allowed, terrace_only, leash_required, extra_fee,
+            proof_excerpt, confidence_score, source_url, source_domain, source_page_type,
+            status, created_by, dedupe_key)
          VALUES ${placeholders}`,
         params
       )
